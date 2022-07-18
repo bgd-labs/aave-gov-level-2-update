@@ -1,2 +1,8 @@
 cache/
 out/
+.idea
+node_modules
+.env
+
+broadcast/
+crytic-export/
