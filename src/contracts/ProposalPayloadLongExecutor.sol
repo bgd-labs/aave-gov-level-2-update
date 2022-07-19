@@ -2,8 +2,13 @@
 pragma solidity 0.7.5;
 
 import { IInitializableAdminUpgradeabilityProxy } from "./interfaces/IInitializableAdminUpgradeabilityProxy.sol";
+import { IAaveGovernanceV2 } from "./interfaces/IAaveGovernanceV2.sol";
+import { Ownable } from "./dependencies/Ownable.sol";
 
 contract ProposalPayloadLongExecutor {
+    IAaveGovernanceV2 constant aaveGovernanceV2 = IAaveGovernanceV2(0xEC568fffba86c094cf06b22134B23074DFE2252c);
+    uint256 public constant VOTING_DELAY = 86400; // 1 day
+
     address public immutable LONG_EXECUTOR;
 
     address public constant AAVE = 0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9;
@@ -28,12 +33,21 @@ contract ProposalPayloadLongExecutor {
     }
 
     function execute() external {
+        // Governance updates
+        aaveGovernanceV2.setVotingDelay(VOTING_DELAY);
+
+        address[] memory executorsToAuthorize = new address[](1);
+        executorsToAuthorize[0] = LONG_EXECUTOR;
+        aaveGovernanceV2.authorizeExecutors(executorsToAuthorize);
+
+        // we don't call unauthorize executors just in case something goes wrong
+        
+        Ownable(address(aaveGovernanceV2)).transferOwnership(LONG_EXECUTOR);
+
+        // update damins
         aaveProxy.changeAdmin(LONG_EXECUTOR);
-
         abptProxy.changeAdmin(LONG_EXECUTOR);
-
         stkAaveProxy.changeAdmin(LONG_EXECUTOR);
-
         stkAbptProxy.changeAdmin(LONG_EXECUTOR);
     }
 }
