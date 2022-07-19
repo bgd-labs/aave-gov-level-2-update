@@ -3,7 +3,7 @@ pragma solidity 0.7.5;
 
 import { IInitializableAdminUpgradeabilityProxy } from "./interfaces/IInitializableAdminUpgradeabilityProxy.sol";
 import { IAaveGovernanceV2 } from "./interfaces/IAaveGovernanceV2.sol";
-import { Ownable } from "./dependencies/Ownable.sol";
+import { IOwnable } from "./interfaces/IOwnable.sol";
 
 contract ProposalPayloadLongExecutor {
     IAaveGovernanceV2 constant aaveGovernanceV2 = IAaveGovernanceV2(0xEC568fffba86c094cf06b22134B23074DFE2252c);
@@ -42,7 +42,7 @@ contract ProposalPayloadLongExecutor {
 
         // we don't call unauthorize executors just in case something goes wrong
         
-        Ownable(address(aaveGovernanceV2)).transferOwnership(LONG_EXECUTOR);
+        IOwnable(address(aaveGovernanceV2)).transferOwnership(LONG_EXECUTOR);
 
         // update damins
         aaveProxy.changeAdmin(LONG_EXECUTOR);
