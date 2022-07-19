@@ -7,6 +7,8 @@ import { ProposalPayloadLongExecutor } from "../src/contracts/ProposalPayloadLon
 import { AaveGovHelpers, IAaveGov } from "./utils/AaveGovHelpers.sol";
 import { IERC20 } from "./utils/IERC20v0.7.5.sol";
 import { IInitializableAdminUpgradeabilityProxy } from "../src/contracts/interfaces/IInitializableAdminUpgradeabilityProxy.sol";
+import { Ownable } from "../src/contracts/dependencies/Ownable.sol";
+import { IAaveGovernanceV2 } from "../src/contracts/interfaces/IAaveGovernanceV2.sol";
 
 contract ProposalPayloadLongExecutorTest is Test {
     address public constant AAVE = 0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9;
@@ -89,6 +91,14 @@ contract ProposalPayloadLongExecutorTest is Test {
 
         AaveGovHelpers._passVote(vm, AAVE_WHALE, proposalId);
         _validateAdminsChanged();
+        _validateGovernanceChanges();
+    }
+
+    function _validateGovernanceChanges() internal {
+        IAaveGovernanceV2 gov = IAaveGovernanceV2(0xEC568fffba86c094cf06b22134B23074DFE2252c);
+        assertEq(gov.isExecutorAuthorized(address(longExecutor)), true);
+        assertEq(gov.getVotingDelay(), 86400);
+        assertEq(Ownable(address(gov)).owner(), address(longExecutor));
     }
 
     function _validateAdminsChanged() internal {
