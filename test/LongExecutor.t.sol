@@ -50,12 +50,13 @@ contract LongExecutorTest is Test {
   }
 
   function testUpdateVotingDuration() public {
-    hoax(ADMIN);
+    
     uint256 newVotingDuration = 54000;
 
     vm.expectEmit(false, false, false, true);
     emit VotingDurationUpdated(newVotingDuration);
 
+    hoax(address(executor));
     executor.updateVotingDuration(newVotingDuration);
 
     assertEq(newVotingDuration, executor.VOTING_DURATION());
@@ -64,12 +65,12 @@ contract LongExecutorTest is Test {
   function testUpdateVotingDurationWhenNotAdmin() public {
     uint256 newVotingDuration = 54000;
 
-    vm.expectRevert(bytes('ONLY_BY_ADMIN'));
+    vm.expectRevert(bytes('CALLER_NOT_EXECUTOR'));
     executor.updateVotingDuration(newVotingDuration);
   }
 
   function testUpdateVoteDifferential() public {
-    hoax(ADMIN);
+    hoax(address(executor));
     uint256 newVoteDifferential = 2000;
 
     vm.expectEmit(false, false, false, true);
@@ -81,12 +82,12 @@ contract LongExecutorTest is Test {
 
   function testUpdateVoteDifferentialWhenNotAdmin() public {
     uint256 newVoteDifferential = 2000;
-    vm.expectRevert(bytes('ONLY_BY_ADMIN'));
+    vm.expectRevert(bytes('CALLER_NOT_EXECUTOR'));
     executor.updateVoteDifferential(newVoteDifferential);
   }
 
   function testUpdateMinimumQuorum() public {
-    hoax(ADMIN);
+    hoax(address(executor));
     uint256 newMinimumQuorum = 4000;
 
     vm.expectEmit(false, false, false, true);
@@ -98,12 +99,12 @@ contract LongExecutorTest is Test {
 
   function testUpdateMinimumQuorumWhenNotAdmin() public {
     uint256 newMinimumQuorum = 4000;
-    vm.expectRevert(bytes('ONLY_BY_ADMIN'));
+    vm.expectRevert(bytes('CALLER_NOT_EXECUTOR'));
     executor.updateMinimumQuorum(newMinimumQuorum);
   }
 
   function testUpdatePropositionThreshold() public {
-    hoax(ADMIN);
+    hoax(address(executor));
     uint256 newMinimumPropositionThreshold = 300;
 
     vm.expectEmit(false, false, false, true);
@@ -115,7 +116,7 @@ contract LongExecutorTest is Test {
 
   function testUpdatePropositionThresholdWhenNotAdmin() public {
     uint256 newMinimumPropositionThreshold = 300;
-    vm.expectRevert(bytes('ONLY_BY_ADMIN'));
+    vm.expectRevert(bytes('CALLER_NOT_EXECUTOR'));
     executor.updatePropositionThreshold(newMinimumPropositionThreshold);
   }
 }
