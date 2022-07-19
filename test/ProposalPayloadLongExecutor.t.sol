@@ -12,11 +12,6 @@ import { IAaveGovernanceV2 } from "../src/contracts/interfaces/IAaveGovernanceV2
 
 contract ProposalPayloadLongExecutorTest is Test {
     address public constant AAVE = 0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9;
-    address public constant ABPT = 0x41A08648C3766F9F9d85598fF102a08f4ef84F84;
-    address public constant stkAAVE =
-        0x4da27a545c0c5B758a6BA100e3a049001de870f5;
-    address public constant stkABPT =
-        0xa1116930326D21fB917d5A27F1E9943A9595fb47;
 
     address internal constant AAVE_WHALE =
         address(0x25F2226B597E8F9514B3F68F00f494cF4f286491);
@@ -34,14 +29,15 @@ contract ProposalPayloadLongExecutorTest is Test {
     Executor public longExecutor;
     ProposalPayloadLongExecutor public payloadLongExecutor;
 
-    IInitializableAdminUpgradeabilityProxy aaveProxy =
+    // contracts
+    IInitializableAdminUpgradeabilityProxy constant AAVE_PROXY =
         IInitializableAdminUpgradeabilityProxy(AAVE);
-    IInitializableAdminUpgradeabilityProxy abptProxy =
-        IInitializableAdminUpgradeabilityProxy(ABPT);
-    IInitializableAdminUpgradeabilityProxy stkAaveProxy =
-        IInitializableAdminUpgradeabilityProxy(stkAAVE);
-    IInitializableAdminUpgradeabilityProxy stkAbptProxy =
-        IInitializableAdminUpgradeabilityProxy(stkABPT);
+    IInitializableAdminUpgradeabilityProxy constant ABPT_PROXY =
+        IInitializableAdminUpgradeabilityProxy(0x41A08648C3766F9F9d85598fF102a08f4ef84F84);
+    IInitializableAdminUpgradeabilityProxy constant STK_AAVE_PROXY =
+        IInitializableAdminUpgradeabilityProxy(0x4da27a545c0c5B758a6BA100e3a049001de870f5);
+    IInitializableAdminUpgradeabilityProxy constant STK_ABPT_PROXY =
+        IInitializableAdminUpgradeabilityProxy(0xa1116930326D21fB917d5A27F1E9943A9595fb47);
 
     function setUp() public {
         _prepareWhale();
@@ -104,13 +100,13 @@ contract ProposalPayloadLongExecutorTest is Test {
     function _validateAdminsChanged() internal {
         vm.startPrank(address(longExecutor));
 
-        assertEq(aaveProxy.admin(), address(longExecutor));
+        assertEq(AAVE_PROXY.admin(), address(longExecutor));
 
-        assertEq(abptProxy.admin(), address(longExecutor));
+        assertEq(ABPT_PROXY.admin(), address(longExecutor));
 
-        assertEq(stkAaveProxy.admin(), address(longExecutor));
+        assertEq(STK_AAVE_PROXY.admin(), address(longExecutor));
 
-        assertEq(stkAbptProxy.admin(), address(longExecutor));
+        assertEq(STK_ABPT_PROXY.admin(), address(longExecutor));
         vm.stopPrank();
     }
 

@@ -6,27 +6,20 @@ import { IAaveGovernanceV2 } from "./interfaces/IAaveGovernanceV2.sol";
 import { IOwnable } from "./interfaces/IOwnable.sol";
 
 contract ProposalPayloadLongExecutor {
-    IAaveGovernanceV2 constant aaveGovernanceV2 = IAaveGovernanceV2(0xEC568fffba86c094cf06b22134B23074DFE2252c);
-    uint256 public constant VOTING_DELAY = 86400; // 1 day
+    IAaveGovernanceV2 constant AAVE_GOVERNANCE_V2 = IAaveGovernanceV2(0xEC568fffba86c094cf06b22134B23074DFE2252c);
+    uint256 public constant VOTING_DELAY = 1 days;
 
     address public immutable LONG_EXECUTOR;
 
-    address public constant AAVE = 0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9;
-    address public constant ABPT = 0x41A08648C3766F9F9d85598fF102a08f4ef84F84;
-    address public constant stkAAVE =
-        0x4da27a545c0c5B758a6BA100e3a049001de870f5;
-    address public constant stkABPT =
-        0xa1116930326D21fB917d5A27F1E9943A9595fb47;
-
     // contracts
-    IInitializableAdminUpgradeabilityProxy constant aaveProxy =
-        IInitializableAdminUpgradeabilityProxy(AAVE);
-    IInitializableAdminUpgradeabilityProxy constant abptProxy =
-        IInitializableAdminUpgradeabilityProxy(ABPT);
-    IInitializableAdminUpgradeabilityProxy constant stkAaveProxy =
-        IInitializableAdminUpgradeabilityProxy(stkAAVE);
-    IInitializableAdminUpgradeabilityProxy constant stkAbptProxy =
-        IInitializableAdminUpgradeabilityProxy(stkABPT);
+    IInitializableAdminUpgradeabilityProxy constant AAVE_PROXY =
+        IInitializableAdminUpgradeabilityProxy(0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9);
+    IInitializableAdminUpgradeabilityProxy constant ABPT_PROXY =
+        IInitializableAdminUpgradeabilityProxy(0x41A08648C3766F9F9d85598fF102a08f4ef84F84);
+    IInitializableAdminUpgradeabilityProxy constant STK_AAVE_PROXY =
+        IInitializableAdminUpgradeabilityProxy(0x4da27a545c0c5B758a6BA100e3a049001de870f5);
+    IInitializableAdminUpgradeabilityProxy constant STK_ABPT_PROXY =
+        IInitializableAdminUpgradeabilityProxy(0xa1116930326D21fB917d5A27F1E9943A9595fb47);
 
     constructor(address longExecutor) {
         LONG_EXECUTOR = longExecutor;
@@ -34,20 +27,20 @@ contract ProposalPayloadLongExecutor {
 
     function execute() external {
         // Governance updates
-        aaveGovernanceV2.setVotingDelay(VOTING_DELAY);
+        AAVE_GOVERNANCE_V2.setVotingDelay(VOTING_DELAY);
 
         address[] memory executorsToAuthorize = new address[](1);
         executorsToAuthorize[0] = LONG_EXECUTOR;
-        aaveGovernanceV2.authorizeExecutors(executorsToAuthorize);
+        AAVE_GOVERNANCE_V2.authorizeExecutors(executorsToAuthorize);
 
         // we don't call unauthorize executors just in case something goes wrong
         
-        IOwnable(address(aaveGovernanceV2)).transferOwnership(LONG_EXECUTOR);
+        IOwnable(address(AAVE_GOVERNANCE_V2)).transferOwnership(LONG_EXECUTOR);
 
         // update damins
-        aaveProxy.changeAdmin(LONG_EXECUTOR);
-        abptProxy.changeAdmin(LONG_EXECUTOR);
-        stkAaveProxy.changeAdmin(LONG_EXECUTOR);
-        stkAbptProxy.changeAdmin(LONG_EXECUTOR);
+        AAVE_PROXY.changeAdmin(LONG_EXECUTOR);
+        ABPT_PROXY.changeAdmin(LONG_EXECUTOR);
+        STK_AAVE_PROXY.changeAdmin(LONG_EXECUTOR);
+        STK_ABPT_PROXY.changeAdmin(LONG_EXECUTOR);
     }
 }
