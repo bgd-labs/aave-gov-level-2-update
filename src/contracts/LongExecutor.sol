@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: agpl-3.0
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.11;
 
 import {IGovernanceStrategy} from './interfaces/IGovernanceStrategy.sol';
 import {IAaveGovernanceV2} from './interfaces/IAaveGovernanceV2.sol';
@@ -15,24 +15,25 @@ import {IExecutor} from './interfaces/IExecutor.sol';
  * @author Aave
  **/
 contract Executor is IExecutor {
-  uint256 public immutable override GRACE_PERIOD;
-  uint256 public immutable override MINIMUM_DELAY;
-  uint256 public immutable override MAXIMUM_DELAY;
-
   address private _admin;
   address private _pendingAdmin;
   uint256 private _delay;
 
-  mapping(bytes32 => bool) private _queuedTransactions;
+  // uppercase is kept even not being constant/immutables, 
+  // in order to keep interface compatibility with a previous version of the Executor
+  uint256 public PROPOSITION_THRESHOLD;
+  uint256 public VOTING_DURATION;
+  uint256 public VOTE_DIFFERENTIAL;
+  uint256 public MINIMUM_QUORUM;
 
-  uint256 public override PROPOSITION_THRESHOLD;
-  uint256 public override VOTING_DURATION;
-  uint256 public override VOTE_DIFFERENTIAL;
-  uint256 public override MINIMUM_QUORUM;
-  uint256 public constant override ONE_HUNDRED_WITH_PRECISION = 10000; // Equivalent to 100%, but scaled for precision
+  mapping(bytes32 => bool) private _queuedTransactions;  
 
+  uint256 public immutable GRACE_PERIOD;
+  uint256 public immutable MINIMUM_DELAY;
+  uint256 public immutable MAXIMUM_DELAY;
+  uint256 public constant ONE_HUNDRED_WITH_PRECISION = 10000; // Equivalent to 100%, but scaled for precision
 
-    /**
+  /**
    * @dev Constructor
    * @param admin admin address, that can call the main functions, (Governance)
    * @param delay minimum time between queueing and execution of proposal
@@ -81,7 +82,7 @@ contract Executor is IExecutor {
   /**
   * -------------------------------------------------------------
   * --------------- IExecutorWithTimelock -----------------------
-  * @dev Contract that can queue, execute, cancel transactions voted by Governance
+  * @dev logic for queue, execute, cancel transactions voted by Governance
   * Queued transactions can be executed after a delay and until
   * Grace period is not over.
   * -------------------------------------------------------------
@@ -97,8 +98,13 @@ contract Executor is IExecutor {
     _;
   }
 
+  modifier onlyExecutor {
+    require(msg.sender == address(this), 'CALLER_NOT_EXECUTOR');
+    _;
+  }
+
   /// @inheritdoc IExecutor
-  function setDelay(uint256 delay) external override onlyExecutor {
+  function setDelay(uint256 delay) external onlyExecutor {
     _validateDelay(delay);
     _delay = delay;
 
@@ -106,7 +112,7 @@ contract Executor is IExecutor {
   }
 
   /// @inheritdoc IExecutor
-  function acceptAdmin() external override onlyPendingAdmin {
+  function acceptAdmin() external onlyPendingAdmin {
     _admin = msg.sender;
     _pendingAdmin = address(0);
 
@@ -114,7 +120,7 @@ contract Executor is IExecutor {
   }
 
   /// @inheritdoc IExecutor
-  function setPendingAdmin(address newPendingAdmin) external override onlyExecutor {
+  function setPendingAdmin(address newPendingAdmin) external onlyExecutor {
     _pendingAdmin = newPendingAdmin;
 
     emit NewPendingAdmin(newPendingAdmin);
@@ -128,7 +134,7 @@ contract Executor is IExecutor {
     bytes memory data,
     uint256 executionTime,
     bool withDelegatecall
-  ) external override onlyAdmin returns (bytes32) {
+  ) external onlyAdmin returns (bytes32) {
     require(executionTime >= block.timestamp + _delay, 'EXECUTION_TIME_UNDERESTIMATED');
 
     bytes32 actionHash = keccak256(
@@ -148,7 +154,7 @@ contract Executor is IExecutor {
     bytes memory data,
     uint256 executionTime,
     bool withDelegatecall
-  ) external override onlyAdmin returns (bytes32) {
+  ) external onlyAdmin returns (bytes32) {
     bytes32 actionHash = keccak256(
       abi.encode(target, value, signature, data, executionTime, withDelegatecall)
     );
@@ -174,7 +180,7 @@ contract Executor is IExecutor {
     bytes memory data,
     uint256 executionTime,
     bool withDelegatecall
-  ) external payable override onlyAdmin returns (bytes memory) {
+  ) external payable onlyAdmin returns (bytes memory) {
     bytes32 actionHash = keccak256(
       abi.encode(target, value, signature, data, executionTime, withDelegatecall)
     );
@@ -220,22 +226,22 @@ contract Executor is IExecutor {
   }
 
   /// @inheritdoc IExecutor
-  function getAdmin() external view override returns (address) {
+  function getAdmin() external view returns (address) {
     return _admin;
   }
 
   /// @inheritdoc IExecutor
-  function getPendingAdmin() external view override returns (address) {
+  function getPendingAdmin() external view returns (address) {
     return _pendingAdmin;
   }
 
   /// @inheritdoc IExecutor
-  function getDelay() external view override returns (uint256) {
+  function getDelay() external view returns (uint256) {
     return _delay;
   }
 
   /// @inheritdoc IExecutor
-  function isActionQueued(bytes32 actionHash) external view override returns (bool) {
+  function isActionQueued(bytes32 actionHash) external view returns (bool) {
     return _queuedTransactions[actionHash];
   }
 
@@ -243,17 +249,11 @@ contract Executor is IExecutor {
   function isProposalOverGracePeriod(IAaveGovernanceV2 governance, uint256 proposalId)
     external
     view
-    override
     returns (bool)
   {
     IAaveGovernanceV2.ProposalWithoutVotes memory proposal = governance.getProposalById(proposalId);
 
     return (block.timestamp > proposal.executionTime + GRACE_PERIOD);
-  }
-
-  function _validateDelay(uint256 delay) internal view {
-    require(delay >= MINIMUM_DELAY, 'DELAY_SHORTER_THAN_MINIMUM');
-    require(delay <= MAXIMUM_DELAY, 'DELAY_LONGER_THAN_MAXIMUM');
   }
 
   receive() external payable {}
@@ -268,22 +268,22 @@ contract Executor is IExecutor {
   */
 
   /// @inheritdoc IExecutor
-  function updateVotingDuration(uint256 votingDuration) external override onlyExecutor {
+  function updateVotingDuration(uint256 votingDuration) external onlyExecutor {
     _updateVotingDuration(votingDuration);
   }
   
   /// @inheritdoc IExecutor
-  function updateVoteDifferential(uint256 voteDifferential) external override onlyExecutor {
+  function updateVoteDifferential(uint256 voteDifferential) external onlyExecutor {
     _updateVoteDifferential(voteDifferential);
   }
 
   /// @inheritdoc IExecutor
-  function updateMinimumQuorum(uint256 minimumQuorum) external override onlyExecutor {
+  function updateMinimumQuorum(uint256 minimumQuorum) external onlyExecutor {
     _updateMinimumQuorum(minimumQuorum);
   }
 
   /// @inheritdoc IExecutor
-  function updatePropositionThreshold(uint256 propositionThreshold) external override onlyExecutor {
+  function updatePropositionThreshold(uint256 propositionThreshold) external onlyExecutor {
     _updatePropositionThreshold(propositionThreshold);
   }
 
@@ -292,7 +292,7 @@ contract Executor is IExecutor {
     IAaveGovernanceV2 governance,
     address user,
     uint256 blockNumber
-  ) external view override returns (bool) {
+  ) external view returns (bool) {
     return isPropositionPowerEnough(governance, user, blockNumber);
   }
 
@@ -301,7 +301,7 @@ contract Executor is IExecutor {
     IAaveGovernanceV2 governance,
     address user,
     uint256 blockNumber
-  ) external view override returns (bool) {
+  ) external view returns (bool) {
     return !isPropositionPowerEnough(governance, user, blockNumber);
   }
 
@@ -310,7 +310,7 @@ contract Executor is IExecutor {
     IAaveGovernanceV2 governance,
     address user,
     uint256 blockNumber
-  ) public view override returns (bool) {
+  ) public view returns (bool) {
     IGovernanceStrategy currentGovernanceStrategy = IGovernanceStrategy(
       governance.getGovernanceStrategy()
     );
@@ -323,7 +323,6 @@ contract Executor is IExecutor {
   function getMinimumPropositionPowerNeeded(IAaveGovernanceV2 governance, uint256 blockNumber)
     public
     view
-    override
     returns (uint256)
   {
     IGovernanceStrategy currentGovernanceStrategy = IGovernanceStrategy(
@@ -340,7 +339,6 @@ contract Executor is IExecutor {
   function isProposalPassed(IAaveGovernanceV2 governance, uint256 proposalId)
     external
     view
-    override
     returns (bool)
   {
     return (isQuorumValid(governance, proposalId) &&
@@ -351,7 +349,6 @@ contract Executor is IExecutor {
   function getMinimumVotingPowerNeeded(uint256 votingSupply)
     public
     view
-    override
     returns (uint256)
   {
     return votingSupply * MINIMUM_QUORUM / ONE_HUNDRED_WITH_PRECISION;
@@ -361,7 +358,6 @@ contract Executor is IExecutor {
   function isQuorumValid(IAaveGovernanceV2 governance, uint256 proposalId)
     public
     view
-    override
     returns (bool)
   {
     IAaveGovernanceV2.ProposalWithoutVotes memory proposal = governance.getProposalById(proposalId);
@@ -376,7 +372,6 @@ contract Executor is IExecutor {
   function isVoteDifferentialValid(IAaveGovernanceV2 governance, uint256 proposalId)
     public
     view
-    override
     returns (bool)
   {
     IAaveGovernanceV2.ProposalWithoutVotes memory proposal = governance.getProposalById(proposalId);
@@ -392,29 +387,30 @@ contract Executor is IExecutor {
   /// updates voting duration
   function _updateVotingDuration(uint256 votingDuration) internal {
     VOTING_DURATION = votingDuration;
-    emit VotingDurationUpdated(VOTING_DURATION);
+    emit VotingDurationUpdated(votingDuration);
   }
 
   /// updates vote differential
   function _updateVoteDifferential(uint256 voteDifferential) internal {
     VOTE_DIFFERENTIAL = voteDifferential;
-    emit VoteDifferentialUpdated(VOTE_DIFFERENTIAL);
+    emit VoteDifferentialUpdated(voteDifferential);
   }
 
   /// updates minimum quorum
   function _updateMinimumQuorum(uint256 minimumQuorum) internal {
     MINIMUM_QUORUM = minimumQuorum;
-    emit MinimumQuorumUpdated(MINIMUM_QUORUM);
+    emit MinimumQuorumUpdated(minimumQuorum);
   }
 
   /// updates proposition threshold
   function _updatePropositionThreshold(uint256 propositionThreshold) internal {
     PROPOSITION_THRESHOLD = propositionThreshold;
-    emit PropositionThresholdUpdated(PROPOSITION_THRESHOLD);
+    emit PropositionThresholdUpdated(propositionThreshold);
   }
 
-  modifier onlyExecutor {
-    require(msg.sender == address(this), 'CALLER_NOT_EXECUTOR');
-    _;
+  /// validates that a delay is correct
+  function _validateDelay(uint256 delay) internal view {
+    require(delay >= MINIMUM_DELAY, 'DELAY_SHORTER_THAN_MINIMUM');
+    require(delay <= MAXIMUM_DELAY, 'DELAY_LONGER_THAN_MAXIMUM');
   }
 }
