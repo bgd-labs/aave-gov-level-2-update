@@ -256,11 +256,7 @@ contract Executor is IExecutor {
     require(delay <= MAXIMUM_DELAY, 'DELAY_LONGER_THAN_MAXIMUM');
   }
 
-  // TODO: don't get why this is needed
   receive() external payable {}
-
-
-
 
   /**
   * --------------------------------------------------------
