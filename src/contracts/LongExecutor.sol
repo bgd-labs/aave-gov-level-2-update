@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: agpl-3.0
-pragma solidity ^0.8.11;
+pragma solidity ^0.8.8;
 
 import {IGovernanceStrategy} from './interfaces/IGovernanceStrategy.sol';
 import {IAaveGovernanceV2} from './interfaces/IAaveGovernanceV2.sol';

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.11;
+pragma solidity ^0.8.8;
 
 import 'forge-std/Test.sol';
 import {Executor} from '../src/contracts/LongExecutor.sol';

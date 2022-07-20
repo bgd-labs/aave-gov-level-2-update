@@ -1,4 +1,4 @@
-pragma solidity ^0.8.11;
+pragma solidity ^0.8.0;
 
 import {IAaveGovernanceV2} from './IAaveGovernanceV2.sol';
 
