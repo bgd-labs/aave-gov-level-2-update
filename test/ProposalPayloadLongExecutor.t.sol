@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.7.5;
+pragma solidity ^0.8.0;
 
 import "forge-std/Test.sol";
 import { Executor } from "../src/contracts/LongExecutor.sol";
 import { ProposalPayloadLongExecutor } from "../src/contracts/ProposalPayloadLongExecutor.sol";
 import { AaveGovHelpers, IAaveGov } from "./utils/AaveGovHelpers.sol";
-import { IERC20 } from "./utils/IERC20v0.7.5.sol";
+import { IERC20 } from "./utils/IERC20.sol";
 import { IInitializableAdminUpgradeabilityProxy } from "../src/contracts/interfaces/IInitializableAdminUpgradeabilityProxy.sol";
 import { IOwnable } from "../src/contracts/interfaces/IOwnable.sol";
 import { IAaveGovernanceV2 } from "../src/contracts/interfaces/IAaveGovernanceV2.sol";
