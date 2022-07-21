@@ -70,11 +70,24 @@ contract ProposalPayloadNewLongExecutorTest is Test {
         _passLongExecutorProposal();
         uint256 govDelay = 7200; // blocks (every 12 sec) in a day
         uint256 newDelay = 604800;
+        address newAdmin = address(912156);
+        uint256 newVotingDuration = 64001;
+        uint256 newDifferential = 1500;
+        uint256 newQuorum = 1201;
+        uint256 newPropositionThreshold = 201;
 
         // new proposal to change delay of long executor
         // using new long executor as proposal executor
         LongExecutorNewDelayProposal delayProposal = 
-            new LongExecutorNewDelayProposal(address(longExecutor), newDelay);
+            new LongExecutorNewDelayProposal(
+                address(longExecutor),
+                newDelay,
+                newAdmin,
+                newVotingDuration,
+                newDifferential,
+                newQuorum,
+                newPropositionThreshold
+            );
 
         address[] memory targets = new address[](1);
         targets[0] = address(delayProposal);
@@ -109,6 +122,11 @@ contract ProposalPayloadNewLongExecutorTest is Test {
         // test that delay was set correctly
         hoax(address(longExecutor));
         assertEq(longExecutor.getDelay(), newDelay);
+        assertEq(longExecutor.getPendingAdmin(), newAdmin);
+        assertEq(longExecutor.VOTING_DURATION(), newVotingDuration);
+        assertEq(longExecutor.VOTE_DIFFERENTIAL(), newDifferential);
+        assertEq(longExecutor.MINIMUM_QUORUM(), newQuorum);
+        assertEq(longExecutor.PROPOSITION_THRESHOLD(), newPropositionThreshold);
     }
 
 
