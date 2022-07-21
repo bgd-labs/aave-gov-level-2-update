@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.11;
 
 import "forge-std/Test.sol";
 import { IERC20 } from "./utils/IERC20.sol";
-import { ProposalPayloadAaveEcosystemReserveV2 } from "../src/contracts/ProposalPayloadAaveEcosystemReserveV2.sol";
+import { ProposalPayloadAaveEcosystemReserveWithVoting } from "../src/contracts/ProposalPayloadAaveEcosystemReserveWithVoting.sol";
 import { AaveGovHelpers, IAaveGov } from "./utils/AaveGovHelpers.sol";
 import { AaveEcosystemReserveV2 } from "../src/contracts/AaveEcosystemReserveV2.sol";
 
-contract ProposalPayloadAaveEcosystemReserveV2Test is Test {
+contract ProposalPayloadAaveEcosystemReserveWithVotingTest is Test {
     IERC20 constant AAVE_TOKEN =
         IERC20(0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9);
     address internal constant AAVE_WHALE =
@@ -21,7 +21,7 @@ contract ProposalPayloadAaveEcosystemReserveV2Test is Test {
 
     AaveEcosystemReserveV2 ecosystemReserve;
     AaveEcosystemReserveV2 aaveEcosystemReserveImpl;
-    ProposalPayloadAaveEcosystemReserveV2 proposalPayloadEcosystem;
+    ProposalPayloadAaveEcosystemReserveWithVoting proposalPayloadEcosystem;
 
 
     function setUp() public {
@@ -29,7 +29,7 @@ contract ProposalPayloadAaveEcosystemReserveV2Test is Test {
 
         proposalId = _createMockProposal();
 
-        proposalPayloadEcosystem = new ProposalPayloadAaveEcosystemReserveV2(
+        proposalPayloadEcosystem = new ProposalPayloadAaveEcosystemReserveWithVoting(
             address(aaveEcosystemReserveImpl),
             proposalId
         );
@@ -79,7 +79,7 @@ contract ProposalPayloadAaveEcosystemReserveV2Test is Test {
 
     function _validateEcosystemVoted(uint256 id) internal {
         IAaveGov.ProposalWithoutVotes memory proposalData = AaveGovHelpers
-            ._getProposalById(proposalId);
+            ._getProposalById(id);
         
         assertEq(proposalData.forVotes, votingPower);
     }

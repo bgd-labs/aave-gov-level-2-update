@@ -1,8 +1,28 @@
 // SPDX-License-Identifier: agpl-3.0
-pragma solidity 0.7.5;
+pragma solidity ^0.8.0;
 
 
 interface IAaveGovernanceV2 {
+  struct ProposalWithoutVotes {
+    uint256 id;
+    address creator;
+    address executor;
+    address[] targets;
+    uint256[] values;
+    string[] signatures;
+    bytes[] calldatas;
+    bool[] withDelegatecalls;
+    uint256 startBlock;
+    uint256 endBlock;
+    uint256 executionTime;
+    uint256 forVotes;
+    uint256 againstVotes;
+    bool executed;
+    bool canceled;
+    address strategy;
+    bytes32 ipfsHash;
+  }
+
   /**
    * @dev Set new Voting Delay (delay before a newly created proposal can be voted on)
    * Note: owner should be a timelocked executor, so needs to make a proposal
@@ -35,5 +55,18 @@ interface IAaveGovernanceV2 {
    * @return true if authorized
    **/
   function isExecutorAuthorized(address executor) external view returns (bool);
+
+  /**
+   * @dev Getter of the current GovernanceStrategy address
+   * @return The address of the current GovernanceStrategy contracts
+   **/
+   function getGovernanceStrategy() external view returns (address);
+  
+   /**
+   * @dev Getter of a proposal by id
+   * @param proposalId id of the proposal to get
+   * @return the proposal as ProposalWithoutVotes memory object
+   **/
+   function getProposalById(uint256 proposalId) external view returns (ProposalWithoutVotes memory);
 
 }

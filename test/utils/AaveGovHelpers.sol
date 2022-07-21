@@ -3,6 +3,7 @@ pragma solidity >=0.7.5 <0.9.0;
 pragma abicoder v2;
 
 import "forge-std/Vm.sol";
+import "forge-std/console.sol";
 
 interface IAaveGov {
     struct ProposalWithoutVotes {

@@ -1,10 +1,14 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.11;
 
 import { IInitializableAdminUpgradeabilityProxy } from "./interfaces/IInitializableAdminUpgradeabilityProxy.sol";
-import { AaveEcosystemReserveV2 } from "./AaveEcosystemReserveV2.sol";
 
-contract ProposalPayloadAaveEcosystemReserveV2 {
+/**
+* @dev Proposal to deploy a new version of the AaveEcosystemReserve
+* on this new version it will use the initialization to use the Aave tokens
+* of the reserve to vote on the proposal id passed
+*/
+contract ProposalPayloadAaveEcosystemReserveWithVoting {
     address public immutable AAVE_ECOSYSTEM_RESERVE_V2_IMPL;
     uint256 public immutable PROPOSAL_ID;
     address public constant AAVE_GOVERNANCE_V2 =
@@ -22,6 +26,7 @@ contract ProposalPayloadAaveEcosystemReserveV2 {
     }
 
     function execute() external {
+        
         ecosystemProxy.upgradeToAndCall(
             AAVE_ECOSYSTEM_RESERVE_V2_IMPL,
             abi.encodeWithSignature(
