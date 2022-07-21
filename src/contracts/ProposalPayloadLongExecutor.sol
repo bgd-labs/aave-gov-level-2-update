@@ -8,7 +8,7 @@ import { IOwnable } from "./interfaces/IOwnable.sol";
 contract ProposalPayloadLongExecutor {
     IAaveGovernanceV2 constant AAVE_GOVERNANCE_V2 = IAaveGovernanceV2(0xEC568fffba86c094cf06b22134B23074DFE2252c);
     uint256 public constant VOTING_DELAY = 1 days;
-
+    address public constant SHORT_EXECUTOR = 0xEE56e2B3D491590B5b31738cC34d5232F378a8D5;
     address public immutable LONG_EXECUTOR;
 
     // contracts
@@ -39,8 +39,11 @@ contract ProposalPayloadLongExecutor {
 
         // update damins
         AAVE_PROXY.changeAdmin(LONG_EXECUTOR);
-        ABPT_PROXY.changeAdmin(LONG_EXECUTOR);
         STK_AAVE_PROXY.changeAdmin(LONG_EXECUTOR);
-        STK_ABPT_PROXY.changeAdmin(LONG_EXECUTOR);
+        
+        // we change the admin to short executor as these don't 
+        // have direct effect on governance, so no need to have them on long executor
+        ABPT_PROXY.changeAdmin(SHORT_EXECUTOR);
+        STK_ABPT_PROXY.changeAdmin(SHORT_EXECUTOR);
     }
 }

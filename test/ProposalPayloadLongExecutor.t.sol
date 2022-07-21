@@ -99,14 +99,13 @@ contract ProposalPayloadLongExecutorTest is Test {
 
     function _validateAdminsChanged() internal {
         vm.startPrank(address(longExecutor));
-
         assertEq(AAVE_PROXY.admin(), address(longExecutor));
-
-        assertEq(ABPT_PROXY.admin(), address(longExecutor));
-
         assertEq(STK_AAVE_PROXY.admin(), address(longExecutor));
+        vm.stopPrank();
 
-        assertEq(STK_ABPT_PROXY.admin(), address(longExecutor));
+        vm.startPrank(AaveGovHelpers.SHORT_EXECUTOR);
+        assertEq(STK_ABPT_PROXY.admin(), AaveGovHelpers.SHORT_EXECUTOR);
+        assertEq(ABPT_PROXY.admin(), AaveGovHelpers.SHORT_EXECUTOR);
         vm.stopPrank();
     }
 
