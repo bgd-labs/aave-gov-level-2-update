@@ -3,6 +3,11 @@ pragma solidity ^0.8.11;
 
 import { IInitializableAdminUpgradeabilityProxy } from "./interfaces/IInitializableAdminUpgradeabilityProxy.sol";
 
+/**
+* @dev Proposal to deploy a new version of the AaveEcosystemReserve
+* on this new version it will use the initialization to use the Aave tokens
+* of the reserve to vote on the proposal id passed
+*/
 contract ProposalPayloadAaveEcosystemReserveWithVoting {
     address public immutable AAVE_ECOSYSTEM_RESERVE_V2_IMPL;
     uint256 public immutable PROPOSAL_ID;

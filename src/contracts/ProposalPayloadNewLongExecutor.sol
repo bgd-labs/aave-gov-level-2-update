@@ -6,15 +6,20 @@ import { IAaveGovernanceV2 } from "./interfaces/IAaveGovernanceV2.sol";
 import { IOwnable } from "./interfaces/IOwnable.sol";
 
 /**
-* @dev
+* @dev Proposal to deploy a new LongExecutor and add it to the Aave governance.
+* It also introduces a new voting delay aplied between proposal creation and queueing.
+* this delay is of 1 day in blocks (7200) taking into account 1 block per 12 sec (merge proof)
+* The proposal also updates the contracts that had the old LongExecutor to the new one.
+* The proposal updates ABPT and stkABPT to be of the ShortExecutor as they don't influence on the Aave governance.
+* For now the old LongExecutor will not be removed, in case there is some leftover contract
+* that has not been updated to the new one.
 */
 contract ProposalPayloadNewLongExecutor {
     IAaveGovernanceV2 constant AAVE_GOVERNANCE_V2 = IAaveGovernanceV2(0xEC568fffba86c094cf06b22134B23074DFE2252c);
-    uint256 public constant VOTING_DELAY = 7200; // blocks in a day (1 block every 12 sec)
+    uint256 public constant VOTING_DELAY = 7200;
     address public constant SHORT_EXECUTOR = 0xEE56e2B3D491590B5b31738cC34d5232F378a8D5;
     address public immutable LONG_EXECUTOR;
 
-    // contracts
     IInitializableAdminUpgradeabilityProxy constant AAVE_PROXY =
         IInitializableAdminUpgradeabilityProxy(0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9);
     IInitializableAdminUpgradeabilityProxy constant ABPT_PROXY =
@@ -35,17 +40,12 @@ contract ProposalPayloadNewLongExecutor {
         address[] memory executorsToAuthorize = new address[](1);
         executorsToAuthorize[0] = LONG_EXECUTOR;
         AAVE_GOVERNANCE_V2.authorizeExecutors(executorsToAuthorize);
-
-        // we don't call unauthorize executors just in case something goes wrong
         
         IOwnable(address(AAVE_GOVERNANCE_V2)).transferOwnership(LONG_EXECUTOR);
 
         // update damins
         AAVE_PROXY.changeAdmin(LONG_EXECUTOR);
         STK_AAVE_PROXY.changeAdmin(LONG_EXECUTOR);
-
-        // we change the admin to short executor as these don't 
-        // have direct effect on governance, so no need to have them on long executor
         ABPT_PROXY.changeAdmin(SHORT_EXECUTOR);
         STK_ABPT_PROXY.changeAdmin(SHORT_EXECUTOR);
     }
