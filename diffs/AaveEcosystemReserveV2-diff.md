@@ -1,8 +1,13 @@
 ```diff --git a/./etherscan/AaveEcosystemReserveV2/AaveEcosystemReserveV2.sol b/./src/contracts/AaveEcosystemReserveV2.sol
-index 2df2421..a2b6147 100644
+index 16b0411..a2b6147 100644
 --- a/./etherscan/AaveEcosystemReserveV2/AaveEcosystemReserveV2.sol
 +++ b/./src/contracts/AaveEcosystemReserveV2.sol
-@@ -145,7 +145,8 @@ interface IStreamable {
+@@ -1,4 +1,3 @@
+-// downloaded at: Thu Jul 21 03:31:24 PM CEST 2022
+ // SPDX-License-Identifier: GPL-3.0
+ pragma solidity 0.8.11;
+ 
+@@ -146,7 +145,8 @@ interface IStreamable {
  
      function cancelStream(uint256 streamId) external returns (bool);
  
@@ -12,7 +17,7 @@ index 2df2421..a2b6147 100644
  }
  interface IAdminControlledEcosystemReserve {
      /** @notice Emitted when the funds admin changes
-@@ -188,6 +189,9 @@ interface IAdminControlledEcosystemReserve {
+@@ -189,6 +189,9 @@ interface IAdminControlledEcosystemReserve {
          uint256 amount
      ) external;
  }
@@ -22,7 +27,7 @@ index 2df2421..a2b6147 100644
  /**
   * @title VersionedInitializable
   *
-@@ -660,7 +664,7 @@ abstract contract AdminControlledEcosystemReserve is
+@@ -661,7 +664,7 @@ abstract contract AdminControlledEcosystemReserve is
  
      address internal _fundsAdmin;
  
@@ -31,7 +36,7 @@ index 2df2421..a2b6147 100644
  
      /// @inheritdoc IAdminControlledEcosystemReserve
      address public constant ETH_MOCK_ADDRESS =
-@@ -714,7 +718,6 @@ abstract contract AdminControlledEcosystemReserve is
+@@ -715,7 +718,6 @@ abstract contract AdminControlledEcosystemReserve is
  }
  
  
@@ -39,7 +44,7 @@ index 2df2421..a2b6147 100644
  /**
   * @title AaveEcosystemReserve v2
   * @notice Stores ERC20 tokens of an ecosystem reserve, adding streaming capabilities.
-@@ -769,10 +772,15 @@ contract AaveEcosystemReserveV2 is
+@@ -770,10 +772,15 @@ contract AaveEcosystemReserveV2 is
      }
  
      /*** Contract Logic Starts Here */

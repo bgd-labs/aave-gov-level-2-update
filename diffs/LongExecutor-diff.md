@@ -1,12 +1,13 @@
 ```diff --git a/./etherscan/Executor/Executor.sol b/./src/contracts/LongExecutor.sol
-index 01c891e..88be89e 100644
+index eb889aa..c1ce6c9 100644
 --- a/./etherscan/Executor/Executor.sol
 +++ b/./src/contracts/LongExecutor.sol
-@@ -1,657 +1,392 @@
+@@ -1,668 +1,38 @@
+-// downloaded at: Thu Jul 21 03:31:12 PM CEST 2022
  // SPDX-License-Identifier: agpl-3.0
 -pragma solidity 0.7.5;
 -pragma abicoder v2;
-+pragma solidity ^0.8.0;
++pragma solidity ^0.8.8;
  
 -/**
 - * @dev Wrappers over Solidity's arithmetic operations with added overflow
@@ -335,11 +336,8 @@ index 01c891e..88be89e 100644
 -    bool[] memory withDelegatecalls,
 -    bytes32 ipfsHash
 -  ) external returns (uint256);
-+import {IGovernanceStrategy} from './interfaces/IGovernanceStrategy.sol';
-+import {IAaveGovernanceV2} from './interfaces/IAaveGovernanceV2.sol';
- 
-+interface IExecutor {
-   /**
+-
+-  /**
 -   * @dev Cancels a Proposal,
 -   * either at anytime by guardian
 -   * or when proposal is Pending/Active and threshold no longer reached
@@ -382,11 +380,7 @@ index 01c891e..88be89e 100644
 -    bytes32 s
 -  ) external;
 -
-+  * -------------------------------------------------------------
-+  * --------------- IExecutorWithTimelock --------------------------
-+  * -------------------------------------------------------------
-+  */
-   /**
+-  /**
 -   * @dev Set new GovernanceStrategy
 -   * Note: owner should be a timelocked executor, so needs to make a proposal
 -   * @param governanceStrategy new Address of the GovernanceStrategy contract
@@ -403,404 +397,97 @@ index 01c891e..88be89e 100644
 -  /**
 -   * @dev Add new addresses to the list of authorized executors
 -   * @param executors list of new addresses to be authorized executors
-+   * @dev emitted when a new pending admin is set
-+   * @param newPendingAdmin address of the new pending admin
-    **/
+-   **/
 -  function authorizeExecutors(address[] memory executors) external;
 -
 -  /**
 -   * @dev Remove addresses to the list of authorized executors
 -   * @param executors list of addresses to be removed as authorized executors
-+   event NewPendingAdmin(address newPendingAdmin);
-+
-+   /**
-+    * @dev emitted when a new admin is set
-+    * @param newAdmin address of the new admin
-+    **/
-+   event NewAdmin(address newAdmin);
-+ 
-+   /**
-+    * @dev emitted when a new delay (between queueing and execution) is set
-+    * @param delay new delay
-+    **/
-+   event NewDelay(uint256 delay);
-+ 
-+   /**
-+    * @dev emitted when a new (trans)action is Queued.
-+    * @param actionHash hash of the action
-+    * @param target address of the targeted contract
-+    * @param value wei value of the transaction
-+    * @param signature function signature of the transaction
-+    * @param data function arguments of the transaction or callData if signature empty
-+    * @param executionTime time at which to execute the transaction
-+    * @param withDelegatecall boolean, true = transaction delegatecalls the target, else calls the target
-+    **/
-+   event QueuedAction(
-+     bytes32 actionHash,
-+     address indexed target,
-+     uint256 value,
-+     string signature,
-+     bytes data,
-+     uint256 executionTime,
-+     bool withDelegatecall
-+   );
-+ 
-+   /**
-+    * @dev emitted when an action is Cancelled
-+    * @param actionHash hash of the action
-+    * @param target address of the targeted contract
-+    * @param value wei value of the transaction
-+    * @param signature function signature of the transaction
-+    * @param data function arguments of the transaction or callData if signature empty
-+    * @param executionTime time at which to execute the transaction
-+    * @param withDelegatecall boolean, true = transaction delegatecalls the target, else calls the target
-+    **/
-+   event CancelledAction(
-+     bytes32 actionHash,
-+     address indexed target,
-+     uint256 value,
-+     string signature,
-+     bytes data,
-+     uint256 executionTime,
-+     bool withDelegatecall
-+   );
-+ 
-+   /**
-+    * @dev emitted when an action is Cancelled
-+    * @param actionHash hash of the action
-+    * @param target address of the targeted contract
-+    * @param value wei value of the transaction
-+    * @param signature function signature of the transaction
-+    * @param data function arguments of the transaction or callData if signature empty
-+    * @param executionTime time at which to execute the transaction
-+    * @param withDelegatecall boolean, true = transaction delegatecalls the target, else calls the target
-+    * @param resultData the actual callData used on the target
-+    **/
-+   event ExecutedAction(
-+     bytes32 actionHash,
-+     address indexed target,
-+     uint256 value,
-+     string signature,
-+     bytes data,
-+     uint256 executionTime,
-+     bool withDelegatecall,
-+     bytes resultData
-+   );
-+
-+   /**
-+    * @dev Getter of the current admin address (should be governance)
-+    * @return The address of the current admin 
-+    **/
-+   function getAdmin() external view returns (address);
-+
-+   /**
-+    * @dev Getter of the current pending admin address
-+    * @return The address of the pending admin 
-+    **/
-+   function getPendingAdmin() external view returns (address);
-+
-+   /**
-+    * @dev Getter of the delay between queuing and execution
-+    * @return The delay in seconds
-+    **/
-+   function getDelay() external view returns (uint256);
-+
-+   /**
-+    * @dev Returns whether an action (via actionHash) is queued
-+    * @param actionHash hash of the action to be checked
-+    * keccak256(abi.encode(target, value, signature, data, executionTime, withDelegatecall))
-+    * @return true if underlying action of actionHash is queued
-+    **/
-+   function isActionQueued(bytes32 actionHash) external view returns (bool);
-+
-+   /**
-+    * @dev Checks whether a proposal is over its grace period 
-+    * @param governance Governance contract
-+    * @param proposalId Id of the proposal against which to test
-+    * @return true of proposal is over grace period
-+    **/
-+   function isProposalOverGracePeriod(IAaveGovernanceV2 governance, uint256 proposalId)
-+     external
-+     view
-+     returns (bool);
-+
-+   /**
-+    * @dev Getter of grace period constant
-+    * @return grace period in seconds
-+    **/
-+   function GRACE_PERIOD() external view returns (uint256);
-+
-+   /**
-+    * @dev Getter of minimum delay constant
-+    * @return minimum delay in seconds
-+    **/
-+   function MINIMUM_DELAY() external view returns (uint256);
-+
-+   /**
-+    * @dev Getter of maximum delay constant
-+    * @return maximum delay in seconds
-+    **/
-+   function MAXIMUM_DELAY() external view returns (uint256);
-+
-+   /**
-+   * @dev Set the delay
-+   * @param delay delay between queue and execution of proposal
-    **/
+-   **/
 -  function unauthorizeExecutors(address[] memory executors) external;
-+  function setDelay(uint256 delay) external;
- 
-   /**
+-
+-  /**
 -   * @dev Let the guardian abdicate from its priviledged rights
-+   * @dev Function enabling pending admin to become admin
-    **/
+-   **/
 -  function __abdicate() external;
-+   function acceptAdmin() external;
- 
-   /**
+-
+-  /**
 -   * @dev Getter of the current GovernanceStrategy address
 -   * @return The address of the current GovernanceStrategy contracts
-+   * @dev Setting a new pending admin (that can then become admin)
-+   * Can only be called by this executor (i.e via proposal)
-+   * @param newPendingAdmin address of the new admin
-    **/
+-   **/
 -  function getGovernanceStrategy() external view returns (address);
-+  function setPendingAdmin(address newPendingAdmin) external;
-+
-+   /**
-+    * @dev Function, called by Governance, that queue a transaction, returns action hash
-+    * @param target smart contract target
-+    * @param value wei value of the transaction
-+    * @param signature function signature of the transaction
-+    * @param data function arguments of the transaction or callData if signature empty
-+    * @param executionTime time at which to execute the transaction
-+    * @param withDelegatecall boolean, true = transaction delegatecalls the target, else calls the target
-+    **/
-+   function queueTransaction(
-+     address target,
-+     uint256 value,
-+     string memory signature,
-+     bytes memory data,
-+     uint256 executionTime,
-+     bool withDelegatecall
-+   ) external returns (bytes32);
-+   /**
-+    * @dev Function, called by Governance, that cancels a transaction, returns the callData executed
-+    * @param target smart contract target
-+    * @param value wei value of the transaction
-+    * @param signature function signature of the transaction
-+    * @param data function arguments of the transaction or callData if signature empty
-+    * @param executionTime time at which to execute the transaction
-+    * @param withDelegatecall boolean, true = transaction delegatecalls the target, else calls the target
-+    **/
-+   function executeTransaction(
-+     address target,
-+     uint256 value,
-+     string memory signature,
-+     bytes memory data,
-+     uint256 executionTime,
-+     bool withDelegatecall
-+   ) external payable returns (bytes memory);
-+   /**
-+    * @dev Function, called by Governance, that cancels a transaction, returns action hash
-+    * @param target smart contract target
-+    * @param value wei value of the transaction
-+    * @param signature function signature of the transaction
-+    * @param data function arguments of the transaction or callData if signature empty
-+    * @param executionTime time at which to execute the transaction
-+    * @param withDelegatecall boolean, true = transaction delegatecalls the target, else calls the target
-+    **/
-+   function cancelTransaction(
-+     address target,
-+     uint256 value,
-+     string memory signature,
-+     bytes memory data,
-+     uint256 executionTime,
-+     bool withDelegatecall
-+   ) external returns (bytes32);
-+
-+  /**
-+  * -------------------------------------------------------------
-+  * --------------- Proposal Validator --------------------------
-+  * -------------------------------------------------------------
-+  */
-+  // event triggered when voting duration gets updated by the admin
-+  event VotingDurationUpdated(uint256 newVotingDuration);
-+  // event triggered when vote differential gets updated by the admin
-+  event VoteDifferentialUpdated(uint256 newVoteDifferential);
-+  // event triggered when minimum quorum gets updated by the admin
-+  event MinimumQuorumUpdated(uint256 newMinimumQuorum);
-+  // event triggered when proposition threshold gets updated by the admin
-+  event PropositionThresholdUpdated(uint256 newPropositionThreshold);
-+  
-+  /**
-+  * @dev method tu update the voting duration of the proposal. Only callable by admin.
-+  * @param votingDuration duration of the vote
-+  */
-+  function updateVotingDuration(uint256 votingDuration) external;
-+
-+  /**
-+  * @dev method to update the vote differential needed to pass the proposal. Only callable by admin.
-+  * @param voteDifferential differential needed on the votes to pass the proposal
-+  */
-+  function updateVoteDifferential(uint256 voteDifferential) external;
-+
-+  /**
-+  * @dev method to update the minimum quorum needed to pass the proposal. Only callable by admin.
-+  * @param minimumQuorum quorum needed to pass the proposal 
-+  */
-+  function updateMinimumQuorum(uint256 minimumQuorum) external;
-+
-+  /**
-+    * @dev method to update the propositionThreshold. Only callable by admin.
-+    * @param propositionThreshold new proposition threshold
-+    **/
-+  function updatePropositionThreshold(uint256 propositionThreshold) external;
- 
-   /**
+-
+-  /**
 -   * @dev Getter of the current Voting Delay (delay before a created proposal can be voted on)
 -   * Different from the voting duration
 -   * @return The voting delay in seconds
-+   * @dev Called to validate a proposal (e.g when creating new proposal in Governance)
-+   * @param governance Governance Contract
-+   * @param user Address of the proposal creator
-+   * @param blockNumber Block Number against which to make the test (e.g proposal creation block -1).
-+   * @return boolean, true if can be created
-    **/
+-   **/
 -  function getVotingDelay() external view returns (uint256);
-+  function validateCreatorOfProposal(
-+    IAaveGovernanceV2 governance,
-+    address user,
-+    uint256 blockNumber
-+  ) external view returns (bool);
- 
-   /**
+-
+-  /**
 -   * @dev Returns whether an address is an authorized executor
 -   * @param executor address to evaluate as authorized executor
 -   * @return true if authorized
-+   * @dev Called to validate the cancellation of a proposal
-+   * @param governance Governance Contract
-+   * @param user Address of the proposal creator
-+   * @param blockNumber Block Number against which to make the test (e.g proposal creation block -1).
-+   * @return boolean, true if can be cancelled
-    **/
+-   **/
 -  function isExecutorAuthorized(address executor) external view returns (bool);
-+  function validateProposalCancellation(
-+    IAaveGovernanceV2 governance,
-+    address user,
-+    uint256 blockNumber
-+  ) external view returns (bool);
- 
-   /**
+-
+-  /**
 -   * @dev Getter the address of the guardian, that can mainly cancel proposals
 -   * @return The address of the guardian
-+   * @dev Returns whether a user has enough Proposition Power to make a proposal.
-+   * @param governance Governance Contract
-+   * @param user Address of the user to be challenged.
-+   * @param blockNumber Block Number against which to make the challenge.
-+   * @return true if user has enough power
-    **/
+-   **/
 -  function getGuardian() external view returns (address);
-+  function isPropositionPowerEnough(
-+    IAaveGovernanceV2 governance,
-+    address user,
-+    uint256 blockNumber
-+  ) external view returns (bool);
- 
-   /**
+-
+-  /**
 -   * @dev Getter of the proposal count (the current number of proposals ever created)
 -   * @return the proposal count
-+   * @dev Returns the minimum Proposition Power needed to create a proposition.
-+   * @param governance Governance Contract
-+   * @param blockNumber Blocknumber at which to evaluate
-+   * @return minimum Proposition Power needed
-    **/
+-   **/
 -  function getProposalsCount() external view returns (uint256);
-+  function getMinimumPropositionPowerNeeded(IAaveGovernanceV2 governance, uint256 blockNumber)
-+    external
-+    view
-+    returns (uint256);
- 
-   /**
+-
+-  /**
 -   * @dev Getter of a proposal by id
 -   * @param proposalId id of the proposal to get
 -   * @return the proposal as ProposalWithoutVotes memory object
-+   * @dev Returns whether a proposal passed or not
-+   * @param governance Governance Contract
-+   * @param proposalId Id of the proposal to set
-+   * @return true if proposal passed
-    **/
+-   **/
 -  function getProposalById(uint256 proposalId) external view returns (ProposalWithoutVotes memory);
-+  function isProposalPassed(IAaveGovernanceV2 governance, uint256 proposalId)
-+    external
-+    view
-+    returns (bool);
- 
-   /**
+-
+-  /**
 -   * @dev Getter of the Vote of a voter about a proposal
 -   * Note: Vote is a struct: ({bool support, uint248 votingPower})
 -   * @param proposalId id of the proposal
 -   * @param voter address of the voter
 -   * @return The associated Vote memory object
-+   * @dev Check whether a proposal has reached quorum, ie has enough FOR-voting-power
-+   * Here quorum is not to understand as number of votes reached, but number of for-votes reached
-+   * @param governance Governance Contract
-+   * @param proposalId Id of the proposal to verify
-+   * @return voting power needed for a proposal to pass
-    **/
+-   **/
 -  function getVoteOnProposal(uint256 proposalId, address voter) external view returns (Vote memory);
-+  function isQuorumValid(IAaveGovernanceV2 governance, uint256 proposalId)
-+    external
-+    view
-+    returns (bool);
- 
-   /**
+-
+-  /**
 -   * @dev Get the current state of a proposal
 -   * @param proposalId id of the proposal
 -   * @return The current state if the proposal
-+   * @dev Check whether a proposal has enough extra FOR-votes than AGAINST-votes
-+   * FOR VOTES - AGAINST VOTES > VOTE_DIFFERENTIAL * voting supply
-+   * @param governance Governance Contract
-+   * @param proposalId Id of the proposal to verify
-+   * @return true if enough For-Votes
-    **/
+-   **/
 -  function getProposalState(uint256 proposalId) external view returns (ProposalState);
 -}
 -
-+  function isVoteDifferentialValid(IAaveGovernanceV2 governance, uint256 proposalId)
-+    external
-+    view
-+    returns (bool);
- 
+-
 -interface IExecutorWithTimelock {
-   /**
+-  /**
 -   * @dev emitted when a new pending admin is set
 -   * @param newPendingAdmin address of the new pending admin
-+   * @dev Calculates the minimum amount of Voting Power needed for a proposal to Pass
-+   * @param votingSupply Total number of oustanding voting tokens
-+   * @return voting power needed for a proposal to pass
-    **/
+-   **/
 -  event NewPendingAdmin(address newPendingAdmin);
-+  function getMinimumVotingPowerNeeded(uint256 votingSupply) external view returns (uint256);
- 
-   /**
+-
+-  /**
 -   * @dev emitted when a new admin is set
 -   * @param newAdmin address of the new admin
-+   * @dev Get proposition threshold constant value
-+   * @return the proposition threshold value (100 <=> 1%)
-    **/
+-   **/
 -  event NewAdmin(address newAdmin);
-+  function PROPOSITION_THRESHOLD() external view returns (uint256);
- 
-   /**
+-
+-  /**
 -   * @dev emitted when a new delay (between queueing and execution) is set
 -   * @param delay new delay
-+   * @dev Get voting duration constant value
-+   * @return the voting duration value in seconds
-    **/
+-   **/
 -  event NewDelay(uint256 delay);
-+  function VOTING_DURATION() external view returns (uint256);
- 
-   /**
+-
+-  /**
 -   * @dev emitted when a new (trans)action is Queued.
 -   * @param actionHash hash of the action
 -   * @param target address of the targeted contract
@@ -809,10 +496,7 @@ index 01c891e..88be89e 100644
 -   * @param data function arguments of the transaction or callData if signature empty
 -   * @param executionTime time at which to execute the transaction
 -   * @param withDelegatecall boolean, true = transaction delegatecalls the target, else calls the target
-+   * @dev Get the vote differential threshold constant value
-+   * to compare with % of for votes/total supply - % of against votes/total supply
-+   * @return the vote differential threshold value (100 <=> 1%)
-    **/
+-   **/
 -  event QueuedAction(
 -    bytes32 actionHash,
 -    address indexed target,
@@ -822,9 +506,8 @@ index 01c891e..88be89e 100644
 -    uint256 executionTime,
 -    bool withDelegatecall
 -  );
-+  function VOTE_DIFFERENTIAL() external view returns (uint256);
- 
-   /**
+-
+-  /**
 -   * @dev emitted when an action is Cancelled
 -   * @param actionHash hash of the action
 -   * @param target address of the targeted contract
@@ -833,10 +516,7 @@ index 01c891e..88be89e 100644
 -   * @param data function arguments of the transaction or callData if signature empty
 -   * @param executionTime time at which to execute the transaction
 -   * @param withDelegatecall boolean, true = transaction delegatecalls the target, else calls the target
-+   * @dev Get quorum threshold constant value
-+   * to compare with % of for votes/total supply
-+   * @return the quorum threshold value (100 <=> 1%)
-    **/
+-   **/
 -  event CancelledAction(
 -    bytes32 actionHash,
 -    address indexed target,
@@ -846,9 +526,8 @@ index 01c891e..88be89e 100644
 -    uint256 executionTime,
 -    bool withDelegatecall
 -  );
-+  function MINIMUM_QUORUM() external view returns (uint256);
- 
-   /**
+-
+-  /**
 -   * @dev emitted when an action is Cancelled
 -   * @param actionHash hash of the action
 -   * @param target address of the targeted contract
@@ -958,9 +637,7 @@ index 01c891e..88be89e 100644
 -   * @param data function arguments of the transaction or callData if signature empty
 -   * @param executionTime time at which to execute the transaction
 -   * @param withDelegatecall boolean, true = transaction delegatecalls the target, else calls the target
-+   * @dev precision helper: 100% = 10000
-+   * @return one hundred percents with our chosen precision
-    **/
+-   **/
 -  function cancelTransaction(
 -    address target,
 -    uint256 value,
@@ -969,10 +646,12 @@ index 01c891e..88be89e 100644
 -    uint256 executionTime,
 -    bool withDelegatecall
 -  ) external returns (bytes32);
-+  function ONE_HUNDRED_WITH_PRECISION() external view returns (uint256);
- }
+-}
++import {IGovernanceStrategy} from './interfaces/IGovernanceStrategy.sol';
++import {IAaveGovernanceV2} from './interfaces/IAaveGovernanceV2.sol';
++import {IExecutor} from './interfaces/IExecutor.sol';
  
--
+ 
  /**
 - * @title Time Locked Executor Contract, inherited by Aave Governance Executors
 - * @dev Contract that can queue, execute, cancel transactions voted by Governance
@@ -988,26 +667,33 @@ index 01c891e..88be89e 100644
 -contract ExecutorWithTimelock is IExecutorWithTimelock {
 -  using SafeMath for uint256;
 -
+-  uint256 public immutable override GRACE_PERIOD;
+-  uint256 public immutable override MINIMUM_DELAY;
+-  uint256 public immutable override MAXIMUM_DELAY;
+-
 +contract Executor is IExecutor {
-   uint256 public immutable override GRACE_PERIOD;
-   uint256 public immutable override MINIMUM_DELAY;
-   uint256 public immutable override MAXIMUM_DELAY;
-@@ -662,21 +397,41 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
+   address private _admin;
+   address private _pendingAdmin;
+   uint256 private _delay;
  
-   mapping(bytes32 => bool) private _queuedTransactions;
++  // uppercase is kept even not being constant/immutables, 
++  // in order to keep interface compatibility with a previous version of the Executor
++  uint256 public PROPOSITION_THRESHOLD;
++  uint256 public VOTING_DURATION;
++  uint256 public VOTE_DIFFERENTIAL;
++  uint256 public MINIMUM_QUORUM;
++
+   mapping(bytes32 => bool) private _queuedTransactions;  
  
--  /**
-+  uint256 public override PROPOSITION_THRESHOLD;
-+  uint256 public override VOTING_DURATION;
-+  uint256 public override VOTE_DIFFERENTIAL;
-+  uint256 public override MINIMUM_QUORUM;
-+  uint256 public constant override ONE_HUNDRED_WITH_PRECISION = 10000; // Equivalent to 100%, but scaled for precision
++  uint256 public immutable GRACE_PERIOD;
++  uint256 public immutable MINIMUM_DELAY;
++  uint256 public immutable MAXIMUM_DELAY;
++  uint256 public constant ONE_HUNDRED_WITH_PRECISION = 10000; // Equivalent to 100%, but scaled for precision
 +
-+
-+    /**
+   /**
     * @dev Constructor
     * @param admin admin address, that can call the main functions, (Governance)
-    * @param delay minimum time between queueing and execution of proposal
+@@ -670,14 +40,27 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
     * @param gracePeriod time after `delay` while a proposal can be executed
     * @param minimumDelay lower threshold of `delay`, in seconds
     * @param maximumDelay upper threhold of `delay`, in seconds
@@ -1037,7 +723,7 @@ index 01c891e..88be89e 100644
      require(delay >= minimumDelay, 'DELAY_SHORTER_THAN_MINIMUM');
      require(delay <= maximumDelay, 'DELAY_LONGER_THAN_MAXIMUM');
      _delay = delay;
-@@ -688,65 +443,56 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
+@@ -689,65 +72,61 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
  
      emit NewDelay(delay);
      emit NewAdmin(admin);
@@ -1051,7 +737,7 @@ index 01c891e..88be89e 100644
 +  /**
 +  * -------------------------------------------------------------
 +  * --------------- IExecutorWithTimelock -----------------------
-+  * @dev Contract that can queue, execute, cancel transactions voted by Governance
++  * @dev logic for queue, execute, cancel transactions voted by Governance
 +  * Queued transactions can be executed after a delay and until
 +  * Grace period is not over.
 +  * -------------------------------------------------------------
@@ -1064,22 +750,25 @@ index 01c891e..88be89e 100644
  
 -  modifier onlyTimelock() {
 -    require(msg.sender == address(this), 'ONLY_BY_THIS_TIMELOCK');
--    _;
--  }
--
-   modifier onlyPendingAdmin() {
-     require(msg.sender == _pendingAdmin, 'ONLY_BY_PENDING_ADMIN');
++  modifier onlyPendingAdmin() {
++    require(msg.sender == _pendingAdmin, 'ONLY_BY_PENDING_ADMIN');
      _;
    }
--
+ 
+-  modifier onlyPendingAdmin() {
+-    require(msg.sender == _pendingAdmin, 'ONLY_BY_PENDING_ADMIN');
++  modifier onlyExecutor {
++    require(msg.sender == address(this), 'CALLER_NOT_EXECUTOR');
+     _;
+   }
+ 
 -  /**
 -   * @dev Set the delay
 -   * @param delay delay between queue and execution of proposal
 -   **/
 -  function setDelay(uint256 delay) public onlyTimelock {
-+
 +  /// @inheritdoc IExecutor
-+  function setDelay(uint256 delay) external override onlyExecutor {
++  function setDelay(uint256 delay) external onlyExecutor {
      _validateDelay(delay);
      _delay = delay;
  
@@ -1091,7 +780,7 @@ index 01c891e..88be89e 100644
 -   **/
 -  function acceptAdmin() public onlyPendingAdmin {
 +  /// @inheritdoc IExecutor
-+  function acceptAdmin() external override onlyPendingAdmin {
++  function acceptAdmin() external onlyPendingAdmin {
      _admin = msg.sender;
      _pendingAdmin = address(0);
  
@@ -1105,7 +794,7 @@ index 01c891e..88be89e 100644
 -   **/
 -  function setPendingAdmin(address newPendingAdmin) public onlyTimelock {
 +  /// @inheritdoc IExecutor
-+  function setPendingAdmin(address newPendingAdmin) external override onlyExecutor {
++  function setPendingAdmin(address newPendingAdmin) external onlyExecutor {
      _pendingAdmin = newPendingAdmin;
  
      emit NewPendingAdmin(newPendingAdmin);
@@ -1125,18 +814,18 @@ index 01c891e..88be89e 100644
    function queueTransaction(
      address target,
      uint256 value,
-@@ -754,8 +500,8 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
+@@ -755,8 +134,8 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
      bytes memory data,
      uint256 executionTime,
      bool withDelegatecall
 -  ) public override onlyAdmin returns (bytes32) {
 -    require(executionTime >= block.timestamp.add(_delay), 'EXECUTION_TIME_UNDERESTIMATED');
-+  ) external override onlyAdmin returns (bytes32) {
++  ) external onlyAdmin returns (bytes32) {
 +    require(executionTime >= block.timestamp + _delay, 'EXECUTION_TIME_UNDERESTIMATED');
  
      bytes32 actionHash = keccak256(
        abi.encode(target, value, signature, data, executionTime, withDelegatecall)
-@@ -766,16 +512,7 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
+@@ -767,16 +146,7 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
      return actionHash;
    }
  
@@ -1154,16 +843,16 @@ index 01c891e..88be89e 100644
    function cancelTransaction(
      address target,
      uint256 value,
-@@ -783,7 +520,7 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
+@@ -784,7 +154,7 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
      bytes memory data,
      uint256 executionTime,
      bool withDelegatecall
 -  ) public override onlyAdmin returns (bytes32) {
-+  ) external override onlyAdmin returns (bytes32) {
++  ) external onlyAdmin returns (bytes32) {
      bytes32 actionHash = keccak256(
        abi.encode(target, value, signature, data, executionTime, withDelegatecall)
      );
-@@ -801,16 +538,7 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
+@@ -802,16 +172,7 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
      return actionHash;
    }
  
@@ -1181,12 +870,12 @@ index 01c891e..88be89e 100644
    function executeTransaction(
      address target,
      uint256 value,
-@@ -818,13 +546,13 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
+@@ -819,13 +180,13 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
      bytes memory data,
      uint256 executionTime,
      bool withDelegatecall
 -  ) public payable override onlyAdmin returns (bytes memory) {
-+  ) external payable override onlyAdmin returns (bytes memory) {
++  ) external payable onlyAdmin returns (bytes memory) {
      bytes32 actionHash = keccak256(
        abi.encode(target, value, signature, data, executionTime, withDelegatecall)
      );
@@ -1197,7 +886,7 @@ index 01c891e..88be89e 100644
  
      _queuedTransactions[actionHash] = false;
  
-@@ -863,46 +591,27 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
+@@ -864,273 +225,92 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
      return resultData;
    }
  
@@ -1205,8 +894,9 @@ index 01c891e..88be89e 100644
 -   * @dev Getter of the current admin address (should be governance)
 -   * @return The address of the current admin
 -   **/
+-  function getAdmin() external view override returns (address) {
 +  /// @inheritdoc IExecutor
-   function getAdmin() external view override returns (address) {
++  function getAdmin() external view returns (address) {
      return _admin;
    }
  
@@ -1214,8 +904,9 @@ index 01c891e..88be89e 100644
 -   * @dev Getter of the current pending admin address
 -   * @return The address of the pending admin
 -   **/
+-  function getPendingAdmin() external view override returns (address) {
 +  /// @inheritdoc IExecutor
-   function getPendingAdmin() external view override returns (address) {
++  function getPendingAdmin() external view returns (address) {
      return _pendingAdmin;
    }
  
@@ -1223,8 +914,9 @@ index 01c891e..88be89e 100644
 -   * @dev Getter of the delay between queuing and execution
 -   * @return The delay in seconds
 -   **/
+-  function getDelay() external view override returns (uint256) {
 +  /// @inheritdoc IExecutor
-   function getDelay() external view override returns (uint256) {
++  function getDelay() external view returns (uint256) {
      return _delay;
    }
  
@@ -1234,8 +926,9 @@ index 01c891e..88be89e 100644
 -   * keccak256(abi.encode(target, value, signature, data, executionTime, withDelegatecall))
 -   * @return true if underlying action of actionHash is queued
 -   **/
+-  function isActionQueued(bytes32 actionHash) external view override returns (bool) {
 +  /// @inheritdoc IExecutor
-   function isActionQueued(bytes32 actionHash) external view override returns (bool) {
++  function isActionQueued(bytes32 actionHash) external view returns (bool) {
      return _queuedTransactions[actionHash];
    }
  
@@ -1249,25 +942,25 @@ index 01c891e..88be89e 100644
    function isProposalOverGracePeriod(IAaveGovernanceV2 governance, uint256 proposalId)
      external
      view
-@@ -911,7 +620,7 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
+-    override
+     returns (bool)
    {
      IAaveGovernanceV2.ProposalWithoutVotes memory proposal = governance.getProposalById(proposalId);
  
 -    return (block.timestamp > proposal.executionTime.add(GRACE_PERIOD));
+-  }
+-
+-  function _validateDelay(uint256 delay) internal view {
+-    require(delay >= MINIMUM_DELAY, 'DELAY_SHORTER_THAN_MINIMUM');
+-    require(delay <= MAXIMUM_DELAY, 'DELAY_LONGER_THAN_MAXIMUM');
 +    return (block.timestamp > proposal.executionTime + GRACE_PERIOD);
    }
  
-   function _validateDelay(uint256 delay) internal view {
-@@ -919,181 +628,42 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
-     require(delay <= MAXIMUM_DELAY, 'DELAY_LONGER_THAN_MAXIMUM');
-   }
- 
-+  // TODO: don't get why this is needed
    receive() external payable {}
 -}
--
+ 
 -interface IProposalValidator {
--  /**
+   /**
 -   * @dev Called to validate a proposal (e.g when creating new proposal in Governance)
 -   * @param governance Governance Contract
 -   * @param user Address of the proposal creator
@@ -1292,7 +985,14 @@ index 01c891e..88be89e 100644
 -    address user,
 -    uint256 blockNumber
 -  ) external view returns (bool);
--
++  * --------------------------------------------------------
++  * ---------- Proposal Validation -------------------------
++  * @dev Validates/Invalidations propositions state modifications.
++  * Proposition Power functions: Validates proposition creations/ cancellation
++  * Voting Power functions: Validates success of propositions.
++  * --------------------------------------------------------
++  */
+ 
 -  /**
 -   * @dev Returns whether a user has enough Proposition Power to make a proposal.
 -   * @param governance Governance Contract
@@ -1358,40 +1058,33 @@ index 01c891e..88be89e 100644
 -   * @return voting power needed for a proposal to pass
 -   **/
 -  function getMinimumVotingPowerNeeded(uint256 votingSupply) external view returns (uint256);
- 
+-
 -  /**
 -   * @dev Get proposition threshold constant value
 -   * @return the proposition threshold value (100 <=> 1%)
 -   **/
 -  function PROPOSITION_THRESHOLD() external view returns (uint256);
- 
+-
 -  /**
 -   * @dev Get voting duration constant value
 -   * @return the voting duration value in seconds
 -   **/
 -  function VOTING_DURATION() external view returns (uint256);
- 
+-
 -  /**
 -   * @dev Get the vote differential threshold constant value
 -   * to compare with % of for votes/total supply - % of against votes/total supply
 -   * @return the vote differential threshold value (100 <=> 1%)
 -   **/
 -  function VOTE_DIFFERENTIAL() external view returns (uint256);
- 
-   /**
+-
+-  /**
 -   * @dev Get quorum threshold constant value
 -   * to compare with % of for votes/total supply
 -   * @return the quorum threshold value (100 <=> 1%)
 -   **/
 -  function MINIMUM_QUORUM() external view returns (uint256);
-+  * --------------------------------------------------------
-+  * ---------- Proposal Validation -------------------------
-+  * @dev Validates/Invalidations propositions state modifications.
-+  * Proposition Power functions: Validates proposition creations/ cancellation
-+  * Voting Power functions: Validates success of propositions.
-+  * --------------------------------------------------------
-+  */
- 
+-
 -  /**
 -   * @dev precision helper: 100% = 10000
 -   * @return one hundred percents with our chosen precision
@@ -1399,7 +1092,7 @@ index 01c891e..88be89e 100644
 -  function ONE_HUNDRED_WITH_PRECISION() external view returns (uint256);
 -}
 +  /// @inheritdoc IExecutor
-+  function updateVotingDuration(uint256 votingDuration) external override onlyExecutor {
++  function updateVotingDuration(uint256 votingDuration) external onlyExecutor {
 +    _updateVotingDuration(votingDuration);
 +  }
    
@@ -1413,7 +1106,7 @@ index 01c891e..88be89e 100644
 -contract ProposalValidator is IProposalValidator {
 -  using SafeMath for uint256;
 +  /// @inheritdoc IExecutor
-+  function updateVoteDifferential(uint256 voteDifferential) external override onlyExecutor {
++  function updateVoteDifferential(uint256 voteDifferential) external onlyExecutor {
 +    _updateVoteDifferential(voteDifferential);
 +  }
  
@@ -1423,7 +1116,7 @@ index 01c891e..88be89e 100644
 -  uint256 public immutable override MINIMUM_QUORUM;
 -  uint256 public constant override ONE_HUNDRED_WITH_PRECISION = 10000; // Equivalent to 100%, but scaled for precision
 +  /// @inheritdoc IExecutor
-+  function updateMinimumQuorum(uint256 minimumQuorum) external override onlyExecutor {
++  function updateMinimumQuorum(uint256 minimumQuorum) external onlyExecutor {
 +    _updateMinimumQuorum(minimumQuorum);
 +  }
  
@@ -1449,7 +1142,7 @@ index 01c891e..88be89e 100644
 -    VOTE_DIFFERENTIAL = voteDifferential;
 -    MINIMUM_QUORUM = minimumQuorum;
 +  /// @inheritdoc IExecutor
-+  function updatePropositionThreshold(uint256 propositionThreshold) external override onlyExecutor {
++  function updatePropositionThreshold(uint256 propositionThreshold) external onlyExecutor {
 +    _updatePropositionThreshold(propositionThreshold);
    }
  
@@ -1464,7 +1157,9 @@ index 01c891e..88be89e 100644
    function validateCreatorOfProposal(
      IAaveGovernanceV2 governance,
      address user,
-@@ -1102,14 +672,7 @@ contract ProposalValidator is IProposalValidator {
+     uint256 blockNumber
+-  ) external view override returns (bool) {
++  ) external view returns (bool) {
      return isPropositionPowerEnough(governance, user, blockNumber);
    }
  
@@ -1480,7 +1175,9 @@ index 01c891e..88be89e 100644
    function validateProposalCancellation(
      IAaveGovernanceV2 governance,
      address user,
-@@ -1118,13 +681,7 @@ contract ProposalValidator is IProposalValidator {
+     uint256 blockNumber
+-  ) external view override returns (bool) {
++  ) external view returns (bool) {
      return !isPropositionPowerEnough(governance, user, blockNumber);
    }
  
@@ -1495,7 +1192,13 @@ index 01c891e..88be89e 100644
    function isPropositionPowerEnough(
      IAaveGovernanceV2 governance,
      address user,
-@@ -1138,12 +695,7 @@ contract ProposalValidator is IProposalValidator {
+     uint256 blockNumber
+-  ) public view override returns (bool) {
++  ) public view returns (bool) {
+     IGovernanceStrategy currentGovernanceStrategy = IGovernanceStrategy(
+       governance.getGovernanceStrategy()
+     );
+@@ -1139,16 +319,10 @@ contract ProposalValidator is IProposalValidator {
        getMinimumPropositionPowerNeeded(governance, blockNumber);
    }
  
@@ -1509,7 +1212,11 @@ index 01c891e..88be89e 100644
    function getMinimumPropositionPowerNeeded(IAaveGovernanceV2 governance, uint256 blockNumber)
      public
      view
-@@ -1156,16 +708,11 @@ contract ProposalValidator is IProposalValidator {
+-    override
+     returns (uint256)
+   {
+     IGovernanceStrategy currentGovernanceStrategy = IGovernanceStrategy(
+@@ -1157,51 +331,33 @@ contract ProposalValidator is IProposalValidator {
      return
        currentGovernanceStrategy
          .getTotalPropositionSupplyAt(blockNumber)
@@ -1529,7 +1236,10 @@ index 01c891e..88be89e 100644
    function isProposalPassed(IAaveGovernanceV2 governance, uint256 proposalId)
      external
      view
-@@ -1176,27 +723,17 @@ contract ProposalValidator is IProposalValidator {
+-    override
+     returns (bool)
+   {
+     return (isQuorumValid(governance, proposalId) &&
        isVoteDifferentialValid(governance, proposalId));
    }
  
@@ -1542,7 +1252,7 @@ index 01c891e..88be89e 100644
    function getMinimumVotingPowerNeeded(uint256 votingSupply)
      public
      view
-     override
+-    override
      returns (uint256)
    {
 -    return votingSupply.mul(MINIMUM_QUORUM).div(ONE_HUNDRED_WITH_PRECISION);
@@ -1560,7 +1270,11 @@ index 01c891e..88be89e 100644
    function isQuorumValid(IAaveGovernanceV2 governance, uint256 proposalId)
      public
      view
-@@ -1211,13 +748,7 @@ contract ProposalValidator is IProposalValidator {
+-    override
+     returns (bool)
+   {
+     IAaveGovernanceV2.ProposalWithoutVotes memory proposal = governance.getProposalById(proposalId);
+@@ -1212,17 +368,10 @@ contract ProposalValidator is IProposalValidator {
      return proposal.forVotes >= getMinimumVotingPowerNeeded(votingSupply);
    }
  
@@ -1575,7 +1289,11 @@ index 01c891e..88be89e 100644
    function isVoteDifferentialValid(IAaveGovernanceV2 governance, uint256 proposalId)
      public
      view
-@@ -1229,34 +760,37 @@ contract ProposalValidator is IProposalValidator {
+-    override
+     returns (bool)
+   {
+     IAaveGovernanceV2.ProposalWithoutVotes memory proposal = governance.getProposalById(proposalId);
+@@ -1230,34 +379,38 @@ contract ProposalValidator is IProposalValidator {
        proposal.startBlock
      );
  
@@ -1615,30 +1333,31 @@ index 01c891e..88be89e 100644
 +  /// updates voting duration
 +  function _updateVotingDuration(uint256 votingDuration) internal {
 +    VOTING_DURATION = votingDuration;
-+    emit VotingDurationUpdated(VOTING_DURATION);
++    emit VotingDurationUpdated(votingDuration);
 +  }
 +
 +  /// updates vote differential
 +  function _updateVoteDifferential(uint256 voteDifferential) internal {
 +    VOTE_DIFFERENTIAL = voteDifferential;
-+    emit VoteDifferentialUpdated(VOTE_DIFFERENTIAL);
++    emit VoteDifferentialUpdated(voteDifferential);
 +  }
 +
 +  /// updates minimum quorum
 +  function _updateMinimumQuorum(uint256 minimumQuorum) internal {
 +    MINIMUM_QUORUM = minimumQuorum;
-+    emit MinimumQuorumUpdated(MINIMUM_QUORUM);
++    emit MinimumQuorumUpdated(minimumQuorum);
 +  }
 +
 +  /// updates proposition threshold
 +  function _updatePropositionThreshold(uint256 propositionThreshold) internal {
 +    PROPOSITION_THRESHOLD = propositionThreshold;
-+    emit PropositionThresholdUpdated(PROPOSITION_THRESHOLD);
++    emit PropositionThresholdUpdated(propositionThreshold);
 +  }
 +
-+  modifier onlyExecutor {
-+    require(msg.sender == address(this), 'CALLER_NOT_EXECUTOR');
-+    _;
++  /// validates that a delay is correct
++  function _validateDelay(uint256 delay) internal view {
++    require(delay >= MINIMUM_DELAY, 'DELAY_SHORTER_THAN_MINIMUM');
++    require(delay <= MAXIMUM_DELAY, 'DELAY_LONGER_THAN_MAXIMUM');
 +  }
  }
 \ No newline at end of file
