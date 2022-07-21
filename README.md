@@ -47,7 +47,7 @@ It will also set the [ShortExecutor]() as admin for these contracts, as they are
       - [ABPT](https://etherscan.io/address/0x41a08648c3766f9f9d85598ff102a08f4ef84f84)
       - [stkABPT](https://etherscan.io/address/0xa1116930326d21fb917d5a27f1e9943a9595fb47)
   </details>
-It will also transfer the ownership of the [Aave Governance](https://etherscan.io/address/0xEC568fffba86c094cf06b22134B23074DFE2252c) to the new LongExecutor and will add it to the list of allowed executors.
+It will also transfer the ownership of the [Aave Governance](https://etherscan.io/address/0xEC568fffba86c094cf06b22134B23074DFE2252c) to the new LongExecutor, will add it to the list of allowed executors, and will set a delay of 1 day in blocks (counted 1 block per 12 seconds = 7200 blocks) between proposal creating and start of voting.
 
 - [ProposalPayloadAaveEcosystemReserveWithVoting](/src/contracts/ProposalPayloadAaveEcosystemReserveWithVoting.sol): This proposal payload will deploy the new ecosystem reserve. It needs to be deployed after the ProposalPayloadNewLongExecutor has been created, as we need to deploy it with its ID. The ecosystem reserve proposal will make it so the ecosystem votes on the proposal id from the Long executor proposal.
 
@@ -69,7 +69,7 @@ FORK_URL= // rpc url pointing to mainnet
 
 ### Deploy
 
-To deploy the necessary contracts and proposal payloads, [deployEcosystemReserve.sol](/src/deploy/deployEcosystemReserve.sol) and [deployLongExecutor.sol](/src/deploy/deployLongExecutor.sol) solidity forge script has been created. There we make use of the [deployCode](https://book.getfoundry.sh/reference/forge-std/deployCode.html?highlight=deploycode#deploycode) forge std method to deploy the contracts that have the solidity version 0.7.5 (mainly the AaveTokenV2, StakedTokenV2Rev4 and ProposalPayloadLong) that are incompatible with the 0.8.0 version used everywhere else.
+To deploy the necessary contracts and proposal payloads, [deployEcosystemReserve.sol](/src/deploy/deployEcosystemReserve.sol) and [deployLongExecutor.sol](/src/deploy/deployLongExecutor.sol) solidity forge script has been created.
 
 You can use the npm script:
 ```
