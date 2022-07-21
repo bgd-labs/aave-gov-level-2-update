@@ -4,7 +4,7 @@ pragma solidity ^0.8.11;
 import "forge-std/Script.sol";
 import "forge-std/console.sol";
 import { AaveEcosystemReserveV2 } from "../contracts/AaveEcosystemReserveV2.sol";
-import { ProposalPayloadAaveEcosystemReserveV2 } from "../contracts/ProposalPayloadAaveEcosystemReserveV2.sol";
+import { ProposalPayloadAaveEcosystemReserveWithVoting } from "../contracts/ProposalPayloadAaveEcosystemReserveWithVoting.sol";
 
 contract DeployEcosystemReserveProposal is Script {
     uint256 public constant PROPOSAL_ID = 0; // TODO: Add proposal Id of the LongExecutor proposal
@@ -18,12 +18,12 @@ contract DeployEcosystemReserveProposal is Script {
             address(aaveEcosystemReserveV2Impl)
         );
 
-        ProposalPayloadAaveEcosystemReserveV2 payload = new ProposalPayloadAaveEcosystemReserveV2(
+        ProposalPayloadAaveEcosystemReserveWithVoting payload = new ProposalPayloadAaveEcosystemReserveWithVoting(
                 address(aaveEcosystemReserveV2Impl),
                 PROPOSAL_ID
             );
 
-        console.log("ProposalPayloadAaveEcosystemReserveV2:", address(payload));
+        console.log("ProposalPayloadAaveEcosystemReserveWithVoting:", address(payload));
 
         vm.stopBroadcast();
     }

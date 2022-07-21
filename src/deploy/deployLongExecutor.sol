@@ -4,7 +4,7 @@ pragma solidity ^0.8.11;
 import "forge-std/Script.sol";
 import "forge-std/console.sol";
 import { Executor } from "../contracts/LongExecutor.sol";
-import { ProposalPayloadLongExecutor } from "../contracts/ProposalPayloadLongExecutor.sol";
+import { ProposalPayloadNewLongExecutor } from "../contracts/ProposalPayloadNewLongExecutor.sol";
 
 contract DeployEcosystemReserve is Script {
     address public constant ADMIN = 0xEC568fffba86c094cf06b22134B23074DFE2252c; // Aave Governance
@@ -34,10 +34,10 @@ contract DeployEcosystemReserve is Script {
         );
         console.log("longExecutor:", address(longExecutor));
 
-        ProposalPayloadLongExecutor payload = new ProposalPayloadLongExecutor(
+        ProposalPayloadNewLongExecutor payload = new ProposalPayloadNewLongExecutor(
             address(longExecutor)
         );
-        console.log("ProposalPayloadLongExecutor:", address(payload));
+        console.log("ProposalPayloadNewLongExecutor:", address(payload));
 
         vm.stopBroadcast();
     }

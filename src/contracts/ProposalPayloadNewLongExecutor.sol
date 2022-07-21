@@ -5,9 +5,12 @@ import { IInitializableAdminUpgradeabilityProxy } from "./interfaces/IInitializa
 import { IAaveGovernanceV2 } from "./interfaces/IAaveGovernanceV2.sol";
 import { IOwnable } from "./interfaces/IOwnable.sol";
 
-contract ProposalPayloadLongExecutor {
+/**
+* @dev
+*/
+contract ProposalPayloadNewLongExecutor {
     IAaveGovernanceV2 constant AAVE_GOVERNANCE_V2 = IAaveGovernanceV2(0xEC568fffba86c094cf06b22134B23074DFE2252c);
-    uint256 public constant VOTING_DELAY = 6443; // blocks in a day
+    uint256 public constant VOTING_DELAY = 7200; // blocks in a day (1 block every 12 sec)
     address public constant SHORT_EXECUTOR = 0xEE56e2B3D491590B5b31738cC34d5232F378a8D5;
     address public immutable LONG_EXECUTOR;
 

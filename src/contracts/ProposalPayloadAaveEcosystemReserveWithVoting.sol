@@ -3,7 +3,7 @@ pragma solidity ^0.8.11;
 
 import { IInitializableAdminUpgradeabilityProxy } from "./interfaces/IInitializableAdminUpgradeabilityProxy.sol";
 
-contract ProposalPayloadAaveEcosystemReserveV2 {
+contract ProposalPayloadAaveEcosystemReserveWithVoting {
     address public immutable AAVE_ECOSYSTEM_RESERVE_V2_IMPL;
     uint256 public immutable PROPOSAL_ID;
     address public constant AAVE_GOVERNANCE_V2 =

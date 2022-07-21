@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import "forge-std/Test.sol";
 import { Executor } from "../src/contracts/LongExecutor.sol";
-import { ProposalPayloadLongExecutor } from "../src/contracts/ProposalPayloadLongExecutor.sol";
+import { ProposalPayloadNewLongExecutor } from "../src/contracts/ProposalPayloadNewLongExecutor.sol";
 import { AaveGovHelpers, IAaveGov } from "./utils/AaveGovHelpers.sol";
 import { IERC20 } from "./utils/IERC20.sol";
 import { IInitializableAdminUpgradeabilityProxy } from "../src/contracts/interfaces/IInitializableAdminUpgradeabilityProxy.sol";
@@ -11,7 +11,7 @@ import { IOwnable } from "../src/contracts/interfaces/IOwnable.sol";
 import { IAaveGovernanceV2 } from "../src/contracts/interfaces/IAaveGovernanceV2.sol";
 import { LongExecutorNewDelayProposal } from "./utils/LongExecutorNewDelayProposal.sol";
 
-contract ProposalPayloadLongExecutorTest is Test {
+contract ProposalPayloadNewLongExecutorTest is Test {
     address public constant AAVE = 0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9;
 
     address internal constant AAVE_WHALE =
@@ -28,7 +28,7 @@ contract ProposalPayloadLongExecutorTest is Test {
     uint256 public constant MINIMUM_QUORUM = 1200;
 
     Executor public longExecutor;
-    ProposalPayloadLongExecutor public payloadLongExecutor;
+    ProposalPayloadNewLongExecutor public payloadLongExecutor;
 
     // contracts
     IInitializableAdminUpgradeabilityProxy constant AAVE_PROXY =
@@ -55,7 +55,7 @@ contract ProposalPayloadLongExecutorTest is Test {
             MINIMUM_QUORUM
         );
 
-        payloadLongExecutor = new ProposalPayloadLongExecutor(
+        payloadLongExecutor = new ProposalPayloadNewLongExecutor(
             address(longExecutor)
         );
     }
@@ -68,7 +68,7 @@ contract ProposalPayloadLongExecutorTest is Test {
 
     function testPassProposalWithNewLongExecutor() public {
         _passLongExecutorProposal();
-        uint256 govDelay = 6443; // blocks in a day
+        uint256 govDelay = 7200; // blocks (every 12 sec) in a day
         uint256 newDelay = 604800;
 
         // new proposal to change delay of long executor
@@ -115,7 +115,7 @@ contract ProposalPayloadLongExecutorTest is Test {
     function _validateGovernanceChanges() internal {
         IAaveGovernanceV2 gov = IAaveGovernanceV2(0xEC568fffba86c094cf06b22134B23074DFE2252c);
         assertEq(gov.isExecutorAuthorized(address(longExecutor)), true);
-        assertEq(gov.getVotingDelay(), 86400);
+        assertEq(gov.getVotingDelay(), 7200);
         assertEq(IOwnable(address(gov)).owner(), address(longExecutor));
     }
 
