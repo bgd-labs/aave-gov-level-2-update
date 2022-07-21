@@ -22,6 +22,8 @@ contract LongExecutorTest is Test {
   event VoteDifferentialUpdated(uint256 newVoteDifferential);
   event MinimumQuorumUpdated(uint256 newMinimumQuorum);
   event PropositionThresholdUpdated(uint256 newPropositionThreshold);
+  event NewDelay(uint256 delay);
+  event NewPendingAdmin(address newPendingAdmin);
   
   function setUp() public {
     executor = new Executor(
@@ -119,4 +121,41 @@ contract LongExecutorTest is Test {
     vm.expectRevert(bytes('CALLER_NOT_EXECUTOR'));
     executor.updatePropositionThreshold(newMinimumPropositionThreshold);
   }
+
+  function testSetDelay() public {
+    uint256 newDelay = 604842;
+    hoax(address(executor));
+
+    vm.expectEmit(false,false,false,true);
+    emit NewDelay(newDelay);
+    executor.setDelay(newDelay);
+
+    assertEq(executor.getDelay(), newDelay);
+  }
+
+  function testSetDelayWhenNotExecutor() public {
+    uint256 newDelay = 42;
+
+    vm.expectRevert(bytes('CALLER_NOT_EXECUTOR'));
+    executor.setDelay(newDelay);
+  }
+
+  function testSetPendingAdmin() public {
+    address newAdmin = address(98123654);
+
+    hoax(address(executor));
+
+    vm.expectEmit(false,false,false,true);
+    emit NewPendingAdmin(newAdmin);
+    executor.setPendingAdmin(newAdmin);
+
+    assertEq(executor.getPendingAdmin(), newAdmin);
+  } 
+
+  function testSetPendingAdminWhenNotExecutor() public {
+    address newAdmin = address(98123654);
+
+    vm.expectRevert(bytes('CALLER_NOT_EXECUTOR'));
+    executor.setPendingAdmin(newAdmin);
+  } 
 }
