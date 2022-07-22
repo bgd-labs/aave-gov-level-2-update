@@ -66,6 +66,8 @@ PRIVATE_KEY= // used to deploy contracts
 FORK_URL= // rpc url pointing to mainnet
 ```
 
+Alternatively you can also run ```npm run tests``` once the .env is set up
+
 
 ### Deploy
 
