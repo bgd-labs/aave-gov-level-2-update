@@ -34,8 +34,8 @@ contract ProposalPayloadAaveEcosystemReserveWithVotingTest is Test {
             proposalId
         );
 
-        votingPower = AAVE_TOKEN.balanceOf(proposalPayloadEcosystem.ECOSYSTEM_PROXY_ADDRESS());
-        ecosystemReserve = AaveEcosystemReserveV2(payable(proposalPayloadEcosystem.ECOSYSTEM_PROXY_ADDRESS()));
+        votingPower = AAVE_TOKEN.balanceOf(address(proposalPayloadEcosystem.AAVE_ECOSYSTEM_RESERVE_PROXY()));
+        ecosystemReserve = AaveEcosystemReserveV2(payable(address(proposalPayloadEcosystem.AAVE_ECOSYSTEM_RESERVE_PROXY())));
 
         oldFundsAdmin = ecosystemReserve.getFundsAdmin();
         oldNextStreamId = ecosystemReserve.getNextStreamId();

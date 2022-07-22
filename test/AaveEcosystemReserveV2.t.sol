@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.11;
+pragma solidity ^0.8.8;
 
 import "forge-std/Test.sol";
 import { AaveEcosystemReserveV2 } from "../src/contracts/AaveEcosystemReserveV2.sol";

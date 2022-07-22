@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: agpl-3.0
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.8;
 
 import {IGovernanceStrategy} from './interfaces/IGovernanceStrategy.sol';
@@ -12,7 +12,7 @@ import {IExecutor} from './interfaces/IExecutor.sol';
  * - Validate Proposal creations/ cancellation
  * - Validate Vote Quorum and Vote success on proposal
  * - Queue, Execute, Cancel, successful proposals' transactions.
- * @author Aave
+ * @author BGD Labs
  **/
 contract Executor is IExecutor {
   address private _admin;
