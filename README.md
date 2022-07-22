@@ -77,14 +77,13 @@ We have used foundry to create this solidity project, so to run the tests you wi
 ```
 ➜ forge test --fork-url https://rpc.flashbots.net -vvvv --fork-block-number <latest block number>
 ```
+Alternatively you can also run ```npm run tests``` once the .env is set up
 
 To test deployment you can run ```npm run deployTest:le``` and ```npm run deployTest:erV2``` which will give out possible deployed addresses and will output gas estimation. For this you will need to add these on your .env file:
 ```
 PRIVATE_KEY= // used to deploy contracts
 FORK_URL= // rpc url pointing to mainnet
 ```
-
-Alternatively you can also run ```npm run tests``` once the .env is set up
 
 
 ### Deploy
