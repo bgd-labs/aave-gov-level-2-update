@@ -2,6 +2,7 @@
 pragma solidity ^0.8.11;
 
 import { IInitializableAdminUpgradeabilityProxy } from "./interfaces/IInitializableAdminUpgradeabilityProxy.sol";
+import { IStreamable } from "./AaveEcosystemReserveV2.sol";
 
 /**
 * @dev Proposal to deploy a new version of the AaveEcosystemReserve
@@ -29,8 +30,8 @@ contract ProposalPayloadAaveEcosystemReserveWithVoting {
         
         ecosystemProxy.upgradeToAndCall(
             AAVE_ECOSYSTEM_RESERVE_V2_IMPL,
-            abi.encodeWithSignature(
-                "initialize(uint256,address)",
+            abi.encodeWithSelector(
+                IStreamable(AAVE_ECOSYSTEM_RESERVE_V2_IMPL).initialize.selector,
                 PROPOSAL_ID,
                 AAVE_GOVERNANCE_V2
             )

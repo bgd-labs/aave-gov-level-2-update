@@ -7,7 +7,7 @@ import { IOwnable } from "./interfaces/IOwnable.sol";
 
 /**
 * @dev Proposal to deploy a new LongExecutor and add it to the Aave governance.
-* It also introduces a new voting delay aplied between proposal creation and queueing.
+* It also introduces a new voting delay aplied between proposal creation and voting.
 * this delay is of 1 day in blocks (7200) taking into account 1 block per 12 sec (merge proof)
 * The proposal also updates the contracts that had the old LongExecutor to the new one.
 * The proposal updates ABPT and stkABPT to be of the ShortExecutor as they don't influence on the Aave governance.

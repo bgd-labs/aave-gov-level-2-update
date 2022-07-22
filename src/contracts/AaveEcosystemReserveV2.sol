@@ -145,8 +145,7 @@ interface IStreamable {
 
     function cancelStream(uint256 streamId) external returns (bool);
 
-    // TODO: is it ok to comment this?? or maybe is it better to add uint256 proposalId, address aaveGovernanceV2 as params??
-    // function initialize(address fundsAdmin) external;
+    function initialize(uint256 proposalId, address aaveGovernanceV2) external;
 }
 interface IAdminControlledEcosystemReserve {
     /** @notice Emitted when the funds admin changes
