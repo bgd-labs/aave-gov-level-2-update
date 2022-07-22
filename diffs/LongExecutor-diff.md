@@ -1,4 +1,4 @@
-diff generated with contract downloaded from etherscan at: Fri Jul 22 11:28:46 AM CEST 2022
+diff generated with contract downloaded from etherscan at: Fri Jul 22 11:55:36 AM CEST 2022
 
 ```diff --git a/./etherscan/Executor/Executor.sol b/./src/contracts/LongExecutor.sol
 index 01c891e..c1ce6c9 100644
