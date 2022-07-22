@@ -3,7 +3,7 @@ pragma solidity ^0.8.11;
 
 import "forge-std/Script.sol";
 import "forge-std/console.sol";
-import { Executor } from "../contracts/LongExecutor.sol";
+import { Executor } from "../contracts/Executor.sol";
 import { ProposalPayloadNewLongExecutor } from "../contracts/ProposalPayloadNewLongExecutor.sol";
 
 contract DeployEcosystemReserve is Script {

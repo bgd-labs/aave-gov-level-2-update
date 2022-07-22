@@ -39,7 +39,7 @@ contract Executor is IExecutor {
    * @param delay minimum time between queueing and execution of proposal
    * @param gracePeriod time after `delay` while a proposal can be executed
    * @param minimumDelay lower threshold of `delay`, in seconds
-   * @param maximumDelay upper threhold of `delay`, in seconds
+   * @param maximumDelay upper threshold of `delay`, in seconds
    * @param propositionThreshold minimum percentage of supply needed to submit a proposal
    * - In ONE_HUNDRED_WITH_PRECISION units
    * @param voteDuration duration in blocks of the voting period
