@@ -6,6 +6,8 @@ import { IERC20 } from "./utils/IERC20.sol";
 import { ProposalPayloadAaveEcosystemReserveWithVoting } from "../src/contracts/ProposalPayloadAaveEcosystemReserveWithVoting.sol";
 import { AaveGovHelpers, IAaveGov } from "./utils/AaveGovHelpers.sol";
 import { AaveEcosystemReserveV2 } from "../src/contracts/AaveEcosystemReserveV2.sol";
+import { Executor } from "../src/contracts/Executor.sol";
+import { ProposalPayloadNewLongExecutor } from "../src/contracts/ProposalPayloadNewLongExecutor.sol";
 
 contract ProposalPayloadAaveEcosystemReserveWithVotingTest is Test {
     IERC20 constant AAVE_TOKEN =
@@ -86,28 +88,23 @@ contract ProposalPayloadAaveEcosystemReserveWithVotingTest is Test {
 
 
     function _createMockProposal() internal returns (uint256) {
-        address longExecutor = deployCode(
-            "out/LongExecutor.sol/Executor.json",
-            abi.encode(
-                address(1234),
-                604800,
-                432000,
-                604800,
-                864000,
-                200,
-                64000,
-                1500,
-                1200
-            )
+        Executor longExecutor = new Executor(
+            address(1234),
+            604800,
+            432000,
+            604800,
+            864000,
+            200,
+            64000,
+            1500,
+            1200
         );
-        address proposalPayload = deployCode(
-            "out/ProposalPayloadLongExecutor.sol/ProposalPayloadLongExecutor.json", abi.encode(
-                longExecutor
-            )
+        ProposalPayloadNewLongExecutor proposalPayload = new ProposalPayloadNewLongExecutor(
+            address(longExecutor)
         );
 
         address[] memory targets = new address[](1);
-        targets[0] = proposalPayload;
+        targets[0] = address(proposalPayload);
         uint256[] memory values = new uint256[](1);
         values[0] = 0;
         string[] memory signatures = new string[](1);
