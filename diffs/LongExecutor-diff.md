@@ -1,9 +1,10 @@
+diff generated with contract downloaded from etherscan at: Fri Jul 22 11:28:46 AM CEST 2022
+
 ```diff --git a/./etherscan/Executor/Executor.sol b/./src/contracts/LongExecutor.sol
-index eb889aa..c1ce6c9 100644
+index 01c891e..c1ce6c9 100644
 --- a/./etherscan/Executor/Executor.sol
 +++ b/./src/contracts/LongExecutor.sol
-@@ -1,668 +1,38 @@
--// downloaded at: Thu Jul 21 03:31:12 PM CEST 2022
+@@ -1,667 +1,38 @@
  // SPDX-License-Identifier: agpl-3.0
 -pragma solidity 0.7.5;
 -pragma abicoder v2;
@@ -693,7 +694,7 @@ index eb889aa..c1ce6c9 100644
    /**
     * @dev Constructor
     * @param admin admin address, that can call the main functions, (Governance)
-@@ -670,14 +40,27 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
+@@ -669,14 +40,27 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
     * @param gracePeriod time after `delay` while a proposal can be executed
     * @param minimumDelay lower threshold of `delay`, in seconds
     * @param maximumDelay upper threhold of `delay`, in seconds
@@ -723,7 +724,7 @@ index eb889aa..c1ce6c9 100644
      require(delay >= minimumDelay, 'DELAY_SHORTER_THAN_MINIMUM');
      require(delay <= maximumDelay, 'DELAY_LONGER_THAN_MAXIMUM');
      _delay = delay;
-@@ -689,65 +72,61 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
+@@ -688,65 +72,61 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
  
      emit NewDelay(delay);
      emit NewAdmin(admin);
@@ -814,7 +815,7 @@ index eb889aa..c1ce6c9 100644
    function queueTransaction(
      address target,
      uint256 value,
-@@ -755,8 +134,8 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
+@@ -754,8 +134,8 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
      bytes memory data,
      uint256 executionTime,
      bool withDelegatecall
@@ -825,7 +826,7 @@ index eb889aa..c1ce6c9 100644
  
      bytes32 actionHash = keccak256(
        abi.encode(target, value, signature, data, executionTime, withDelegatecall)
-@@ -767,16 +146,7 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
+@@ -766,16 +146,7 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
      return actionHash;
    }
  
@@ -843,7 +844,7 @@ index eb889aa..c1ce6c9 100644
    function cancelTransaction(
      address target,
      uint256 value,
-@@ -784,7 +154,7 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
+@@ -783,7 +154,7 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
      bytes memory data,
      uint256 executionTime,
      bool withDelegatecall
@@ -852,7 +853,7 @@ index eb889aa..c1ce6c9 100644
      bytes32 actionHash = keccak256(
        abi.encode(target, value, signature, data, executionTime, withDelegatecall)
      );
-@@ -802,16 +172,7 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
+@@ -801,16 +172,7 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
      return actionHash;
    }
  
@@ -870,7 +871,7 @@ index eb889aa..c1ce6c9 100644
    function executeTransaction(
      address target,
      uint256 value,
-@@ -819,13 +180,13 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
+@@ -818,13 +180,13 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
      bytes memory data,
      uint256 executionTime,
      bool withDelegatecall
@@ -886,7 +887,7 @@ index eb889aa..c1ce6c9 100644
  
      _queuedTransactions[actionHash] = false;
  
-@@ -864,273 +225,92 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
+@@ -863,273 +225,92 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
      return resultData;
    }
  
@@ -1198,7 +1199,7 @@ index eb889aa..c1ce6c9 100644
      IGovernanceStrategy currentGovernanceStrategy = IGovernanceStrategy(
        governance.getGovernanceStrategy()
      );
-@@ -1139,16 +319,10 @@ contract ProposalValidator is IProposalValidator {
+@@ -1138,16 +319,10 @@ contract ProposalValidator is IProposalValidator {
        getMinimumPropositionPowerNeeded(governance, blockNumber);
    }
  
@@ -1216,7 +1217,7 @@ index eb889aa..c1ce6c9 100644
      returns (uint256)
    {
      IGovernanceStrategy currentGovernanceStrategy = IGovernanceStrategy(
-@@ -1157,51 +331,33 @@ contract ProposalValidator is IProposalValidator {
+@@ -1156,51 +331,33 @@ contract ProposalValidator is IProposalValidator {
      return
        currentGovernanceStrategy
          .getTotalPropositionSupplyAt(blockNumber)
@@ -1274,7 +1275,7 @@ index eb889aa..c1ce6c9 100644
      returns (bool)
    {
      IAaveGovernanceV2.ProposalWithoutVotes memory proposal = governance.getProposalById(proposalId);
-@@ -1212,17 +368,10 @@ contract ProposalValidator is IProposalValidator {
+@@ -1211,17 +368,10 @@ contract ProposalValidator is IProposalValidator {
      return proposal.forVotes >= getMinimumVotingPowerNeeded(votingSupply);
    }
  
@@ -1293,7 +1294,7 @@ index eb889aa..c1ce6c9 100644
      returns (bool)
    {
      IAaveGovernanceV2.ProposalWithoutVotes memory proposal = governance.getProposalById(proposalId);
-@@ -1230,34 +379,38 @@ contract ProposalValidator is IProposalValidator {
+@@ -1229,34 +379,38 @@ contract ProposalValidator is IProposalValidator {
        proposal.startBlock
      );
  
