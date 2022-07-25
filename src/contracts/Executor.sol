@@ -7,12 +7,12 @@ import {IExecutor} from './interfaces/IExecutor.sol';
 
 
 /**
- * @title Time Locked, Validator, Executor Contract
- * @dev Contract
- * - Validate Proposal creations/ cancellation
- * - Validate Vote Quorum and Vote success on proposal
- * - Queue, Execute, Cancel, successful proposals' transactions.
+ * @title Executor
  * @author BGD Labs
+ * @notice Time Locked, Validator, Executor Contract that:
+ * - Validates Proposal creations/ cancellation
+ * - Validates Vote Quorum and Vote success on proposal
+ * - Allows queueing, execution and cancellation of proposals' transactions.
  **/
 contract Executor is IExecutor {
   address private _admin;
