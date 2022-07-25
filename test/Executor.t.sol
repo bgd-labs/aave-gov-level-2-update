@@ -2,9 +2,9 @@
 pragma solidity ^0.8.8;
 
 import 'forge-std/Test.sol';
-import {Executor} from '../src/contracts/LongExecutor.sol';
+import {Executor} from '../src/contracts/Executor.sol';
 
-contract LongExecutorTest is Test {
+contract ExecutorTest is Test {
   address public constant ADMIN = address(1234);
   uint256 public constant DELAY = 604800;
   uint256 public constant GRACE_PERIOD = 432000;

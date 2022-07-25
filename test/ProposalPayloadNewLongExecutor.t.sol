@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.8;
 
 import "forge-std/Test.sol";
-import { Executor } from "../src/contracts/LongExecutor.sol";
+import { Executor } from "../src/contracts/Executor.sol";
 import { ProposalPayloadNewLongExecutor } from "../src/contracts/ProposalPayloadNewLongExecutor.sol";
 import { AaveGovHelpers, IAaveGov } from "./utils/AaveGovHelpers.sol";
 import { IERC20 } from "./utils/IERC20.sol";

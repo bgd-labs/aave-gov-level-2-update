@@ -9,7 +9,7 @@
   },
   "scripts": {
     "tests": "env-cmd npm run test:contracts",
-    "test:contracts": "forge test --fork-url $FORK_URL -vvvv",
+    "test:contracts": "forge test --fork-url $FORK_URL -vvv",
     "aaveEcosystemReserveV2:current": "env-cmd cast etherscan-source -d etherscan 0x1aa435ed226014407Fa6b889e9d06c02B1a12AF3",
     "aaveEcosystemReserveV2:diff": "npm run aaveEcosystemReserveV2:current && sh generateDiffs.sh ./etherscan/AaveEcosystemReserveV2/AaveEcosystemReserveV2.sol ./src/contracts/AaveEcosystemReserveV2.sol AaveEcosystemReserveV2 && sh dates.sh ./etherscan/AaveEcosystemReserveV2/AaveEcosystemReserveV2.sol",
     "longExecutor:current": "env-cmd cast etherscan-source -d etherscan 0x61910EcD7e8e942136CE7Fe7943f956cea1CC2f7",
