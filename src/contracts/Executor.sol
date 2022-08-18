@@ -393,21 +393,21 @@ contract Executor is IExecutor {
 
   /// updates vote differential
   function _updateVoteDifferential(uint256 voteDifferential) internal {
-    require(voteDifferential <= 10000, 'VOTE_DIFFERENTIAL_CAN_NOT_BE_GREATER_THAN_100%');
+    require(voteDifferential <= ONE_HUNDRED_WITH_PRECISION, 'VOTE_DIFFERENTIAL_CAN_NOT_BE_GREATER_THAN_100%');
     VOTE_DIFFERENTIAL = voteDifferential;
     emit VoteDifferentialUpdated(voteDifferential);
   }
 
   /// updates minimum quorum
   function _updateMinimumQuorum(uint256 minimumQuorum) internal {
-    require(minimumQuorum <= 10000, 'MINIMUM_QUORUM_CAN_NOT_BE_GREATER_THAN_100%');
+    require(minimumQuorum <= ONE_HUNDRED_WITH_PRECISION, 'MINIMUM_QUORUM_CAN_NOT_BE_GREATER_THAN_100%');
     MINIMUM_QUORUM = minimumQuorum;
     emit MinimumQuorumUpdated(minimumQuorum);
   }
 
   /// updates proposition threshold
   function _updatePropositionThreshold(uint256 propositionThreshold) internal {
-    require(propositionThreshold <= 10000, 'PROPOSITION_THRESHOLD_CAN_NOT_BE_GREATER_THAN_100%');
+    require(propositionThreshold <= ONE_HUNDRED_WITH_PRECISION, 'PROPOSITION_THRESHOLD_CAN_NOT_BE_GREATER_THAN_100%');
     PROPOSITION_THRESHOLD = propositionThreshold;
     emit PropositionThresholdUpdated(propositionThreshold);
   }

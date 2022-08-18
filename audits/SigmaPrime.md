@@ -33,6 +33,9 @@ The optimal mitigation would be to have `AaveGovernanceV2` to revert if `getProp
 
 This would require updating the `AaveGovernanceV2` contract which does not seem like a worthwhile trade-off given the low impact of this issue.
 
+**BGD answer**
+
+This point will not be addressed, as it is out of bounds for this proposal.
 
 ## INFORMATIONAL: Insufficient Bounds Checks On `_updatePropositionThreshold()`, `_updateMinimumQuorum()`, `_updateVoteDifferential()`, `_updateVotingDuration()`
 
@@ -55,6 +58,14 @@ Add upper bounds checks to the input value to ensure they are below some reasona
 
 Additionally, ensure `_updateVotingDuration()` is non-zero.
 
+**BGD answer**
+
+Bound checks will be added to 100% (10000) on 
+- `_updatePropositionThreshold()`
+- `_updateMinimumQuorum()`
+- `_updateVoteDifferential()`
+
+and a check will also be added to ensure `_updateVotingDuration()` is non-zero.
 
 ## Miscellaneous
 
@@ -72,6 +83,10 @@ Note that due to compatibility with `AaveGovernanceV2` and `IExecutor` it may be
 
 An alternative mitigation is to clearly document the units in the natspec.
 
+**BGD answer**
+
+Natspec will be updated to clearly indicate if variable indicates time in seconds or indicates number of blocks.
+
 ### Identical proposals queued in the same block will overwrite each other in the executor.
 
 The function `queueTransaction()` (`cancelTransaction()` and `executeTransaction()`) should do not hash `proposalId` into the action hash.
@@ -79,3 +94,8 @@ The function `queueTransaction()` (`cancelTransaction()` and `executeTransaction
 As a result if two identical proposal are queued in the same block (or otherwise with the same `executionTime`) then they will overlap in the `_queuedTransactions` mapping.
 
 This would require two proposals to pass with the exact same fields and so has negligible likelihood. Furthermore, the impact is low as only one of these proposals may be executed or cancelled and then both will be removed from the queue.
+
+**BGD answer**
+
+This point will not be addressed, as for the cases where a proposal needs to do two actions with the same parameters (which would be the case to trigger this exception), the actions should be added to the same payload
+which would then not trigger this point.
