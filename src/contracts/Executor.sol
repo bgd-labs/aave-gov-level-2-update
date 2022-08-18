@@ -386,6 +386,7 @@ contract Executor is IExecutor {
 
   /// updates voting duration
   function _updateVotingDuration(uint256 votingDuration) internal {
+    require(votingDuration > 0, 'VOTING_DURATION_CAN_NOT_BE_0');
     VOTING_DURATION = votingDuration;
     emit VotingDurationUpdated(votingDuration);
   }

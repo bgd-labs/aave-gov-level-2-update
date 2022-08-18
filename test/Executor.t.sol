@@ -71,6 +71,14 @@ contract ExecutorTest is Test {
     executor.updateVotingDuration(newVotingDuration);
   }
 
+  function testUpdateVotingDurationWhen0() public {
+    hoax(address(executor));
+    uint256 newVotingDuration = 0;
+
+    vm.expectRevert(bytes('VOTING_DURATION_CAN_NOT_BE_0'));
+    executor.updateVotingDuration(newVotingDuration);
+  }
+
   function testUpdateVoteDifferential() public {
     hoax(address(executor));
     uint256 newVoteDifferential = 2000;
