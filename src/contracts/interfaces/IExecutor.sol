@@ -145,7 +145,7 @@ interface IExecutor {
 
    /**
    * @dev Set the delay
-   * @param delay delay between queue and execution of proposal
+   * @param delay time in seconds between queue and execution of proposal
    **/
   function setDelay(uint256 delay) external;
 

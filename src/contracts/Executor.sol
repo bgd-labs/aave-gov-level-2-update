@@ -37,7 +37,7 @@ contract Executor is IExecutor {
    * @dev Constructor
    * @param admin admin address, that can call the main functions, (Governance)
    * @param delay minimum time between queueing and execution of proposal, in seconds
-   * @param gracePeriod time after `delay` while a proposal can be executed
+   * @param gracePeriod time after `delay` while a proposal can be executed, in seconds
    * @param minimumDelay lower threshold of `delay`, in seconds
    * @param maximumDelay upper threshold of `delay`, in seconds
    * @param propositionThreshold minimum percentage of supply needed to submit a proposal
