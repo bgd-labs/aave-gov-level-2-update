@@ -36,7 +36,7 @@ contract Executor is IExecutor {
   /**
    * @dev Constructor
    * @param admin admin address, that can call the main functions, (Governance)
-   * @param delay minimum time between queueing and execution of proposal
+   * @param delay minimum time between queueing and execution of proposal, in seconds
    * @param gracePeriod time after `delay` while a proposal can be executed
    * @param minimumDelay lower threshold of `delay`, in seconds
    * @param maximumDelay upper threshold of `delay`, in seconds
@@ -392,18 +392,21 @@ contract Executor is IExecutor {
 
   /// updates vote differential
   function _updateVoteDifferential(uint256 voteDifferential) internal {
+    require(voteDifferential <= 10000, 'VOTE_DIFFERENTIAL_CAN_NOT_BE_GREATER_THAN_100%');
     VOTE_DIFFERENTIAL = voteDifferential;
     emit VoteDifferentialUpdated(voteDifferential);
   }
 
   /// updates minimum quorum
   function _updateMinimumQuorum(uint256 minimumQuorum) internal {
+    require(minimumQuorum <= 10000, 'MINIMUM_QUORUM_CAN_NOT_BE_GREATER_THAN_100%');
     MINIMUM_QUORUM = minimumQuorum;
     emit MinimumQuorumUpdated(minimumQuorum);
   }
 
   /// updates proposition threshold
   function _updatePropositionThreshold(uint256 propositionThreshold) internal {
+    require(propositionThreshold <= 10000, 'PROPOSITION_THRESHOLD_CAN_NOT_BE_GREATER_THAN_100%');
     PROPOSITION_THRESHOLD = propositionThreshold;
     emit PropositionThresholdUpdated(propositionThreshold);
   }
