@@ -26,6 +26,8 @@ contract ExecutorTest is Test {
   event NewPendingAdmin(address newPendingAdmin);
   
   function setUp() public {
+    vm.createSelectFork(vm.rpcUrl("ethereum"), 15370248);
+
     executor = new Executor(
       ADMIN,
       DELAY,
