@@ -1,13 +1,14 @@
-diff generated with contract downloaded from etherscan at: Fri Jul 22 11:55:36 AM CEST 2022
+diff generated with contract downloaded from etherscan at: Thu Aug 18 03:49:41 PM CEST 2022
 
-```diff --git a/./etherscan/Executor/Executor.sol b/./src/contracts/LongExecutor.sol
-index 01c891e..c1ce6c9 100644
+```diff --git a/./etherscan/Executor/Executor.sol b/./src/contracts/Executor.sol
+index 01c891e..6b4266b 100644
 --- a/./etherscan/Executor/Executor.sol
-+++ b/./src/contracts/LongExecutor.sol
-@@ -1,667 +1,38 @@
- // SPDX-License-Identifier: agpl-3.0
++++ b/./src/contracts/Executor.sol
+@@ -1,682 +1,66 @@
+-// SPDX-License-Identifier: agpl-3.0
 -pragma solidity 0.7.5;
 -pragma abicoder v2;
++// SPDX-License-Identifier: MIT
 +pragma solidity ^0.8.8;
  
 -/**
@@ -658,12 +659,13 @@ index 01c891e..c1ce6c9 100644
 - * @dev Contract that can queue, execute, cancel transactions voted by Governance
 - * Queued transactions can be executed after a delay and until
 - * Grace period is not over.
-+ * @title Time Locked, Validator, Executor Contract
-+ * @dev Contract
-+ * - Validate Proposal creations/ cancellation
-+ * - Validate Vote Quorum and Vote success on proposal
-+ * - Queue, Execute, Cancel, successful proposals' transactions.
-  * @author Aave
+- * @author Aave
++ * @title Executor
++ * @author BGD Labs
++ * @notice Time Locked, Validator, Executor Contract that:
++ * - Validates Proposal creations/ cancellation
++ * - Validates Vote Quorum and Vote success on proposal
++ * - Allows queueing, execution and cancellation of proposals' transactions.
   **/
 -contract ExecutorWithTimelock is IExecutorWithTimelock {
 -  using SafeMath for uint256;
@@ -694,10 +696,13 @@ index 01c891e..c1ce6c9 100644
    /**
     * @dev Constructor
     * @param admin admin address, that can call the main functions, (Governance)
-@@ -669,14 +40,27 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
-    * @param gracePeriod time after `delay` while a proposal can be executed
+-   * @param delay minimum time between queueing and execution of proposal
+-   * @param gracePeriod time after `delay` while a proposal can be executed
++   * @param delay minimum time between queueing and execution of proposal, in seconds
++   * @param gracePeriod time after `delay` while a proposal can be executed, in seconds
     * @param minimumDelay lower threshold of `delay`, in seconds
-    * @param maximumDelay upper threhold of `delay`, in seconds
+-   * @param maximumDelay upper threhold of `delay`, in seconds
++   * @param maximumDelay upper threshold of `delay`, in seconds
 +   * @param propositionThreshold minimum percentage of supply needed to submit a proposal
 +   * - In ONE_HUNDRED_WITH_PRECISION units
 +   * @param voteDuration duration in blocks of the voting period
@@ -959,9 +964,9 @@ index 01c891e..c1ce6c9 100644
  
    receive() external payable {}
 -}
- 
+-
 -interface IProposalValidator {
-   /**
+-  /**
 -   * @dev Called to validate a proposal (e.g when creating new proposal in Governance)
 -   * @param governance Governance Contract
 -   * @param user Address of the proposal creator
@@ -986,14 +991,7 @@ index 01c891e..c1ce6c9 100644
 -    address user,
 -    uint256 blockNumber
 -  ) external view returns (bool);
-+  * --------------------------------------------------------
-+  * ---------- Proposal Validation -------------------------
-+  * @dev Validates/Invalidations propositions state modifications.
-+  * Proposition Power functions: Validates proposition creations/ cancellation
-+  * Voting Power functions: Validates success of propositions.
-+  * --------------------------------------------------------
-+  */
- 
+-
 -  /**
 -   * @dev Returns whether a user has enough Proposition Power to make a proposal.
 -   * @param governance Governance Contract
@@ -1017,8 +1015,8 @@ index 01c891e..c1ce6c9 100644
 -    external
 -    view
 -    returns (uint256);
--
--  /**
+ 
+   /**
 -   * @dev Returns whether a proposal passed or not
 -   * @param governance Governance Contract
 -   * @param proposalId Id of the proposal to set
@@ -1028,7 +1026,14 @@ index 01c891e..c1ce6c9 100644
 -    external
 -    view
 -    returns (bool);
--
++  * --------------------------------------------------------
++  * ---------- Proposal Validation -------------------------
++  * @dev Validates/Invalidations propositions state modifications.
++  * Proposition Power functions: Validates proposition creations/ cancellation
++  * Voting Power functions: Validates success of propositions.
++  * --------------------------------------------------------
++  */
+ 
 -  /**
 -   * @dev Check whether a proposal has reached quorum, ie has enough FOR-voting-power
 -   * Here quorum is not to understand as number of votes reached, but number of for-votes reached
@@ -1294,7 +1299,7 @@ index 01c891e..c1ce6c9 100644
      returns (bool)
    {
      IAaveGovernanceV2.ProposalWithoutVotes memory proposal = governance.getProposalById(proposalId);
-@@ -1229,34 +379,38 @@ contract ProposalValidator is IProposalValidator {
+@@ -1229,34 +379,42 @@ contract ProposalValidator is IProposalValidator {
        proposal.startBlock
      );
  
@@ -1333,24 +1338,28 @@ index 01c891e..c1ce6c9 100644
 -  {}
 +  /// updates voting duration
 +  function _updateVotingDuration(uint256 votingDuration) internal {
++    require(votingDuration > 0, 'VOTING_DURATION_CAN_NOT_BE_0');
 +    VOTING_DURATION = votingDuration;
 +    emit VotingDurationUpdated(votingDuration);
 +  }
 +
 +  /// updates vote differential
 +  function _updateVoteDifferential(uint256 voteDifferential) internal {
++    require(voteDifferential <= ONE_HUNDRED_WITH_PRECISION, 'VOTE_DIFFERENTIAL_CAN_NOT_BE_GREATER_THAN_100%');
 +    VOTE_DIFFERENTIAL = voteDifferential;
 +    emit VoteDifferentialUpdated(voteDifferential);
 +  }
 +
 +  /// updates minimum quorum
 +  function _updateMinimumQuorum(uint256 minimumQuorum) internal {
++    require(minimumQuorum <= ONE_HUNDRED_WITH_PRECISION, 'MINIMUM_QUORUM_CAN_NOT_BE_GREATER_THAN_100%');
 +    MINIMUM_QUORUM = minimumQuorum;
 +    emit MinimumQuorumUpdated(minimumQuorum);
 +  }
 +
 +  /// updates proposition threshold
 +  function _updatePropositionThreshold(uint256 propositionThreshold) internal {
++    require(propositionThreshold <= ONE_HUNDRED_WITH_PRECISION, 'PROPOSITION_THRESHOLD_CAN_NOT_BE_GREATER_THAN_100%');
 +    PROPOSITION_THRESHOLD = propositionThreshold;
 +    emit PropositionThresholdUpdated(propositionThreshold);
 +  }

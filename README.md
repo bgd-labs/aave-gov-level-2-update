@@ -28,7 +28,7 @@ On the [contracts](/src/contracts) folder we can find the Solidity smart contrac
 - [AaveEcosystemReserveV2](/src/contracts/AaveEcosystemReserveV2.sol): This contract has the logic to vote on a specific proposal with the AAVE ecosystem reserve voting power. In order to have this as one-time action, the voting logic is included into the `initialize()` function. This is done to be able to more easily pass the Level 2 proposal, as that will require 20% of total voting power, and the ecosystem reserve has 10% of it approx.
 This is a relatively simple update of an implementation under a transparent proxy contract, and the diff between the new implementation and the current one operating on Ethereum can be found [HERE](./diffs/AaveEcosystemReserveV2-diff.md).
 
-- [Executor](/src/contracts/LongExecutor.sol): This contract has the same logic as the current [Level 2/Long Executor](https://etherscan.io/address/0x61910EcD7e8e942136CE7Fe7943f956cea1CC2f7) but changing the MINIMUM_QUORUM to the new 6.5% value. It also contains methods to update the settings, so in the future there is no need to deploy new long executors. The diff between the new executor and the current one operating on Ethereum can be found [HERE](./diffs/LongExecutor-diff.md)
+- [Executor](/src/contracts/Executor.sol): This contract has the same logic as the current [Level 2/Long Executor](https://etherscan.io/address/0x61910EcD7e8e942136CE7Fe7943f956cea1CC2f7) but changing the MINIMUM_QUORUM to the new 6.5% value. It also contains methods to update the settings, so in the future there is no need to deploy new long executors. The diff between the new executor and the current one operating on Ethereum can be found [HERE](./diffs/Executor-diff.md)
 
 
 ### Governance Payloads

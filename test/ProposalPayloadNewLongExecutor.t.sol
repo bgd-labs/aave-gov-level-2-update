@@ -41,6 +41,8 @@ contract ProposalPayloadNewLongExecutorTest is Test {
         IInitializableAdminUpgradeabilityProxy(0xa1116930326D21fB917d5A27F1E9943A9595fb47);
 
     function setUp() public {
+        vm.createSelectFork(vm.rpcUrl("ethereum"), 15370248);
+
         _prepareWhale();
 
         longExecutor = new Executor(

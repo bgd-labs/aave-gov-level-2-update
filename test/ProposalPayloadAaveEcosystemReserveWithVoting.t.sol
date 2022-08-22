@@ -27,6 +27,8 @@ contract ProposalPayloadAaveEcosystemReserveWithVotingTest is Test {
 
 
     function setUp() public {
+        vm.createSelectFork(vm.rpcUrl("ethereum"), 15370248);
+
         aaveEcosystemReserveImpl = new AaveEcosystemReserveV2();
 
         proposalId = _createMockProposal();

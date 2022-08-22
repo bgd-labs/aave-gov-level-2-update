@@ -31,6 +31,8 @@ contract AaveEcosystemReserveV2Test is Test {
     );
 
     function setUp() public {
+        vm.createSelectFork(vm.rpcUrl("ethereum"), 15370248);
+
         aaveEcosystemReserveImpl = new AaveEcosystemReserveV2();
 
         ecosystemProxy = IInitializableAdminUpgradeabilityProxy(

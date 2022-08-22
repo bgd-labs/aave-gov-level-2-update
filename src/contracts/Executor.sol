@@ -36,8 +36,8 @@ contract Executor is IExecutor {
   /**
    * @dev Constructor
    * @param admin admin address, that can call the main functions, (Governance)
-   * @param delay minimum time between queueing and execution of proposal
-   * @param gracePeriod time after `delay` while a proposal can be executed
+   * @param delay minimum time between queueing and execution of proposal, in seconds
+   * @param gracePeriod time after `delay` while a proposal can be executed, in seconds
    * @param minimumDelay lower threshold of `delay`, in seconds
    * @param maximumDelay upper threshold of `delay`, in seconds
    * @param propositionThreshold minimum percentage of supply needed to submit a proposal
@@ -386,24 +386,28 @@ contract Executor is IExecutor {
 
   /// updates voting duration
   function _updateVotingDuration(uint256 votingDuration) internal {
+    require(votingDuration > 0, 'VOTING_DURATION_CAN_NOT_BE_0');
     VOTING_DURATION = votingDuration;
     emit VotingDurationUpdated(votingDuration);
   }
 
   /// updates vote differential
   function _updateVoteDifferential(uint256 voteDifferential) internal {
+    require(voteDifferential <= ONE_HUNDRED_WITH_PRECISION, 'VOTE_DIFFERENTIAL_CAN_NOT_BE_GREATER_THAN_100%');
     VOTE_DIFFERENTIAL = voteDifferential;
     emit VoteDifferentialUpdated(voteDifferential);
   }
 
   /// updates minimum quorum
   function _updateMinimumQuorum(uint256 minimumQuorum) internal {
+    require(minimumQuorum <= ONE_HUNDRED_WITH_PRECISION, 'MINIMUM_QUORUM_CAN_NOT_BE_GREATER_THAN_100%');
     MINIMUM_QUORUM = minimumQuorum;
     emit MinimumQuorumUpdated(minimumQuorum);
   }
 
   /// updates proposition threshold
   function _updatePropositionThreshold(uint256 propositionThreshold) internal {
+    require(propositionThreshold <= ONE_HUNDRED_WITH_PRECISION, 'PROPOSITION_THRESHOLD_CAN_NOT_BE_GREATER_THAN_100%');
     PROPOSITION_THRESHOLD = propositionThreshold;
     emit PropositionThresholdUpdated(propositionThreshold);
   }

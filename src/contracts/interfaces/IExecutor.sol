@@ -145,7 +145,7 @@ interface IExecutor {
 
    /**
    * @dev Set the delay
-   * @param delay delay between queue and execution of proposal
+   * @param delay time in seconds between queue and execution of proposal
    **/
   function setDelay(uint256 delay) external;
 
@@ -229,7 +229,7 @@ interface IExecutor {
   
   /**
   * @dev method tu update the voting duration of the proposal. Only callable by admin.
-  * @param votingDuration duration of the vote
+  * @param votingDuration duration of the vote, in blocks
   */
   function updateVotingDuration(uint256 votingDuration) external;
 
@@ -351,7 +351,7 @@ interface IExecutor {
 
   /**
    * @dev Get voting duration constant value
-   * @return the voting duration value in seconds
+   * @return the voting duration value in blocks
    **/
   function VOTING_DURATION() external view returns (uint256);
 
