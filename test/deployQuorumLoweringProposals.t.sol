@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import 'forge-std/Test.sol';
 import {GovHelpers, IAaveGov} from 'aave-helpers/GovHelpers.sol';
-import {DeployProposal} from '../src/deploy/deployQuorumLoweringProposals.s.sol';
+import {DeployProposal} from '../script/DeployQuorumLoweringProposals.s.sol';
 
 contract DeployQuorumLoweringProposalTest is Test {
     address public constant PAYLOAD = address(123);

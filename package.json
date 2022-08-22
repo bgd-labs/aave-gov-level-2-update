@@ -8,24 +8,10 @@
     "test": "test"
   },
   "scripts": {
-    "tests": "env-cmd npm run test:contracts",
-    "test:contracts": "forge test --fork-url $FORK_URL -vvv",
     "aaveEcosystemReserveV2:current": "env-cmd cast etherscan-source -d etherscan 0x1aa435ed226014407Fa6b889e9d06c02B1a12AF3",
     "aaveEcosystemReserveV2:diff": "npm run aaveEcosystemReserveV2:current && sh generateDiffs.sh ./etherscan/AaveEcosystemReserveV2/AaveEcosystemReserveV2.sol ./src/contracts/AaveEcosystemReserveV2.sol AaveEcosystemReserveV2 && sh dates.sh ./etherscan/AaveEcosystemReserveV2/AaveEcosystemReserveV2.sol",
     "longExecutor:current": "env-cmd cast etherscan-source -d etherscan 0x61910EcD7e8e942136CE7Fe7943f956cea1CC2f7",
-    "longExecutor:diff": "npm run longExecutor:current && sh generateDiffs.sh ./etherscan/Executor/Executor.sol ./src/contracts/Executor.sol Executor && sh dates.sh ./etherscan/Executor/Executor.sol",
-    "deployTest:le": "env-cmd npm run deploy:test:le",
-    "deployTest:erV2": "env-cmd npm run deploy:test:erV2",
-    "deploy:le": "env-cmd npm run deploy:broadcast:le",
-    "deploy:erV2": "env-cmd npm run deploy:broadcast:erV2",
-    "deployVerify:le": "env-cmd npm run deploy:verify:le",
-    "deployVerify:erv2": "env-cmd npm run deploy:verify:reV2",
-    "deploy:test:le": "forge script src/deploy/deployLongExecutorPayload.s.sol --fork-url $FORK_URL --private-key $PRIVATE_KEY --optimize --optimizer-runs 200 -vvvv",
-    "deploy:test:erV2": "forge script src/deploy/deployEcosystemReservePayload.s.sol --fork-url $FORK_URL --private-key $PRIVATE_KEY --optimize --optimizer-runs 200 -vvvv",
-    "deploy:broadcast:le": "forge script src/deploy/deployLongExecutorPayload.s.sol --private-key $PRIVATE_KEY --broadcast --fork-url $FORK_URL --verify --optimize --optimizer-runs 200 -vvvv",
-    "deploy:verify:le": "forge script src/deploy/deployLongExecutorPayload.s.sol --private-key $PRIVATE_KEY --fork-url $FORK_URL --verify --optimize --optimizer-runs 200 -vvvv",
-    "deploy:broadcast:erV2": "forge script src/deploy/deployEcosystemReservePayload.s.sol --private-key $PRIVATE_KEY --broadcast --fork-url $FORK_URL --verify --optimize --optimizer-runs 200 -vvvv",
-    "deploy:verify:erV2": "forge script src/deploy/deployEcosystemReservePayload.s.sol --private-key $PRIVATE_KEY --fork-url $FORK_URL --verify --optimize --optimizer-runs 200 -vvvv"
+    "longExecutor:diff": "npm run longExecutor:current && sh generateDiffs.sh ./etherscan/Executor/Executor.sol ./src/contracts/Executor.sol Executor && sh dates.sh ./etherscan/Executor/Executor.sol"
   },
   "repository": {
     "type": "git",
