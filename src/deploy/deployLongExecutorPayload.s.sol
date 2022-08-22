@@ -6,7 +6,7 @@ import "forge-std/console.sol";
 import { Executor } from "../contracts/Executor.sol";
 import { ProposalPayloadNewLongExecutor } from "../contracts/ProposalPayloadNewLongExecutor.sol";
 
-contract DeployEcosystemReserve is Script {
+contract DeployEcosystemReservePayload is Script {
     address public constant ADMIN = 0xEC568fffba86c094cf06b22134B23074DFE2252c; // Aave Governance
     uint256 public constant DELAY = 604800;
     uint256 public constant GRACE_PERIOD = 432000;

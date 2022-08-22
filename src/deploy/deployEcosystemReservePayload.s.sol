@@ -6,7 +6,7 @@ import "forge-std/console.sol";
 import { AaveEcosystemReserveV2 } from "../contracts/AaveEcosystemReserveV2.sol";
 import { ProposalPayloadAaveEcosystemReserveWithVoting } from "../contracts/ProposalPayloadAaveEcosystemReserveWithVoting.sol";
 
-contract DeployEcosystemReserveProposal is Script {
+contract DeployEcosystemReservePayload is Script {
     uint256 public constant PROPOSAL_ID = 0; // TODO: Add proposal Id of the LongExecutor proposal
 
     function run() public {

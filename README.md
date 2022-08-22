@@ -88,7 +88,7 @@ FORK_URL= // rpc url pointing to mainnet
 
 ### Deploy
 
-To deploy the necessary contracts and proposal payloads, [deployEcosystemReserve.sol](/src/deploy/deployEcosystemReserve.sol) and [deployLongExecutor.sol](/src/deploy/deployLongExecutor.sol) solidity forge script has been created.
+To deploy the necessary contracts and proposal payloads, [deployEcosystemReserve.sol](/src/deploy/deployEcosystemReservePayload.s.sol) and [deployLongExecutor.sol](/src/deploy/deployLongExecutorPayload.s.sol) solidity forge script has been created.
 
 You can use the npm script:
 ```

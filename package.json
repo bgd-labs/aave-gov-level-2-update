@@ -20,12 +20,12 @@
     "deploy:erV2": "env-cmd npm run deploy:broadcast:erV2",
     "deployVerify:le": "env-cmd npm run deploy:verify:le",
     "deployVerify:erv2": "env-cmd npm run deploy:verify:reV2",
-    "deploy:test:le": "forge script ./src/deploy/deployLongExecutor.sol --fork-url $FORK_URL --private-key $PRIVATE_KEY --optimize --optimizer-runs 200 -vvvv",
-    "deploy:test:erV2": "forge script ./src/deploy/deployEcosystemReserve.sol --fork-url $FORK_URL --private-key $PRIVATE_KEY --optimize --optimizer-runs 200 -vvvv",
-    "deploy:broadcast:le": "forge script ./src/deploy/deployLongExecutor.sol --private-key $PRIVATE_KEY --broadcast --fork-url $FORK_URL --verify --optimize --optimizer-runs 200 -vvvv",
-    "deploy:verify:le": "forge script ./src/deploy/deployLongExecutor.sol --private-key $PRIVATE_KEY --fork-url $FORK_URL --verify --optimize --optimizer-runs 200 -vvvv",
-    "deploy:broadcast:erV2": "forge script ./src/deploy/deployEcosystemReserve.sol --private-key $PRIVATE_KEY --broadcast --fork-url $FORK_URL --verify --optimize --optimizer-runs 200 -vvvv",
-    "deploy:verify:erV2": "forge script ./src/deploy/deployEcosystemReserve.sol --private-key $PRIVATE_KEY --fork-url $FORK_URL --verify --optimize --optimizer-runs 200 -vvvv"
+    "deploy:test:le": "forge script src/deploy/deployLongExecutorPayload.s.sol --fork-url $FORK_URL --private-key $PRIVATE_KEY --optimize --optimizer-runs 200 -vvvv",
+    "deploy:test:erV2": "forge script src/deploy/deployEcosystemReservePayload.s.sol --fork-url $FORK_URL --private-key $PRIVATE_KEY --optimize --optimizer-runs 200 -vvvv",
+    "deploy:broadcast:le": "forge script src/deploy/deployLongExecutorPayload.s.sol --private-key $PRIVATE_KEY --broadcast --fork-url $FORK_URL --verify --optimize --optimizer-runs 200 -vvvv",
+    "deploy:verify:le": "forge script src/deploy/deployLongExecutorPayload.s.sol --private-key $PRIVATE_KEY --fork-url $FORK_URL --verify --optimize --optimizer-runs 200 -vvvv",
+    "deploy:broadcast:erV2": "forge script src/deploy/deployEcosystemReservePayload.s.sol --private-key $PRIVATE_KEY --broadcast --fork-url $FORK_URL --verify --optimize --optimizer-runs 200 -vvvv",
+    "deploy:verify:erV2": "forge script src/deploy/deployEcosystemReservePayload.s.sol --private-key $PRIVATE_KEY --fork-url $FORK_URL --verify --optimize --optimizer-runs 200 -vvvv"
   },
   "repository": {
     "type": "git",

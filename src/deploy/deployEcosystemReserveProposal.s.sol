@@ -3,18 +3,19 @@ pragma solidity ^0.8.0;
 import 'forge-std/Script.sol';
 import {AaveGovernanceV2, IExecutorWithTimelock} from 'aave-address-book/AaveGovernanceV2.sol';
 
-contract DeployLongExecutorProposal is Script {
-    address public constant LONG_EXECUTOR_PAYLOAD = address(0); // TODO: add here the correct deployed payload
+
+contract DeployEcosystemReserveProposal is Script {
+    address public constant ECOSYSTEM_RESERVE_PAYLOAD = address(0); // TODO: add here the correct deployed payload
     bytes32 public constant PROPOSAL_IPFS_HASH = bytes32(0); // TODO: add here the correct proposal ipfs hash
 
     function run() public {
         vm.startBroadcast();
 
-        require(LONG_EXECUTOR_PAYLOAD != address(0), "ERROR: PAYLOAD can't be address(0)");
+        require(ECOSYSTEM_RESERVE_PAYLOAD != address(0), "ERROR: PAYLOAD can't be address(0)");
         require(PROPOSAL_IPFS_HASH != bytes32(0), "ERROR: IPFS_HASH can't be bytes32(0)");
 
         address[] memory targets = new address[](1);
-        targets[0] = address(LONG_EXECUTOR_PAYLOAD);
+        targets[0] = address(ECOSYSTEM_RESERVE_PAYLOAD);
         uint256[] memory values = new uint256[](1);
         values[0] = 0;
         string[] memory signatures = new string[](1);
@@ -25,7 +26,7 @@ contract DeployLongExecutorProposal is Script {
         withDelegatecalls[0] = true;
 
         AaveGovernanceV2.GOV.create(
-            IExecutorWithTimelock(AaveGovernanceV2.LONG_EXECUTOR),
+            IExecutorWithTimelock(AaveGovernanceV2.SHORT_EXECUTOR),
             targets,
             values,
             signatures,
@@ -37,5 +38,3 @@ contract DeployLongExecutorProposal is Script {
         vm.stopBroadcast();
     }
 }
-
-
