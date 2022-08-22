@@ -3,10 +3,10 @@ pragma solidity ^0.8.11;
 
 import "forge-std/Script.sol";
 import "forge-std/console.sol";
-import { Executor } from "../contracts/Executor.sol";
-import { ProposalPayloadNewLongExecutor } from "../contracts/ProposalPayloadNewLongExecutor.sol";
+import { Executor } from "src/contracts/Executor.sol";
+import { ProposalPayloadNewLongExecutor } from "src/contracts/ProposalPayloadNewLongExecutor.sol";
 
-contract DeployEcosystemReserve is Script {
+contract DeployLongExecutorPayload is Script {
     address public constant ADMIN = 0xEC568fffba86c094cf06b22134B23074DFE2252c; // Aave Governance
     uint256 public constant DELAY = 604800;
     uint256 public constant GRACE_PERIOD = 432000;

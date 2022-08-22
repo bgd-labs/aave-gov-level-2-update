@@ -69,40 +69,48 @@ To install and execute the project locally, you need:
 - ```npm install``` : As there are some scripts to make deployment easier.
 - ```forge install``` : This project is made using [Foundry](https://book.getfoundry.sh/) so to run it you will need to install it, and then install its dependencies.
 
+It is also needed to copy `.env.example` to `.env` and fill:
+
+```
+ETHERSCAN_API_KEY= // used to verify contracts against etherscan
+PRIVATE_KEY= // used to deploy contracts using private key
+RPC_URL= // rpc url where the contracts will be deployed
+```
+
+### Build
+
+```
+forge build
+```
 
 ### Tests
 
-We have used foundry to create this solidity project, so to run the tests you will need to run ```forge test```. But as we are using already deployed contracts, the tests need to be run in a fork environment. For this you will need to execute this command:
-
 ```
-➜ forge test --fork-url https://rpc.flashbots.net -vvvv --fork-block-number <latest block number>
+➜ forge test
 ```
-Alternatively you can also run ```npm run tests``` once the .env is set up
-
-To test deployment you can run ```npm run deployTest:le``` and ```npm run deployTest:erV2``` which will give out possible deployed addresses and will output gas estimation. For this you will need to add these on your .env file:
-```
-PRIVATE_KEY= // used to deploy contracts
-FORK_URL= // rpc url pointing to mainnet
-```
-
 
 ### Deploy
 
-To deploy the necessary contracts and proposal payloads, [deployEcosystemReserve.sol](/src/deploy/deployEcosystemReserve.sol) and [deployLongExecutor.sol](/src/deploy/deployLongExecutor.sol) solidity forge script has been created.
+To deploy the necessary payloads and proposal creations, a [Makefile](Makefile) was created, with the following commands:
 
-You can use the npm script:
-```
-npm run deploy:le
-npm run deploy:erV2
-```
-Which will deploy everything needed for the rescue phase 1 and will try to verify with etherscan. For this remember to add:
-```
-ETHERSCAN_API_KEY= // used to verify contracts against etherscan
-PRIVATE_KEY= // used to deploy contracts
-FORK_URL= // rpc url pointing to mainnet
-```
-to your .env file. If you want to deploy to a test network you only need to change ```FORK_URL``` to the rpc pointing to that network.
+- [LongExecutor Payload](/script/DeployLongExecutorPayload.s.sol): `make deploy-long-executor-payload-<ledger|pk>`
 
+To create the LongExecutor Proposal, the payload address and the ipfsHash is needed on the script
+- [LongExecutor Proposal](/script/DeployQuorumLoweringProposals.s.sol): `make deploy-long-executor-proposal-<ledger|pk>`
+
+For the EcosystemReserve Payload, the proposalId of the LongExecutor is needed on the deployment script.
+- [EcosystemReserve Payload](/script/DeployEcosystemReservePayload.s.sol): `make deploy-ecosystem-reserve-payload-<ledger|pk>`
+
+To create the EcosystemReserve Proposal, the payload address and the ipfsHash is needed on the script
+- [EcosystemReserve Proposal](/script/DeployQuorumLoweringProposals.s.sol): `make deploy-ecosystem-reserve-proposal-<ledger|pk>`
+
+Use `ledger` or `pk` depending on the deployment method
+
+### Verify
+
+The deployment scripts already try to verify the contracts against Etherscan. But the verification process can get stuck sometimes. If so try executing these commands, which will retry the verification process:
+- [LongExecutor Payload](/script/DeployLongExecutorPayload.s.sol): `make verify-long-executor-payload`
+- [EcosystemReserve Payload](/script/DeployEcosystemReservePayload.s.sol) `make verify-ecosystem-reserve-payload`
 
 ### Copyright
 
