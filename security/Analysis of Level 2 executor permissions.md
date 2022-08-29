@@ -33,7 +33,6 @@ As search only gives us appearances, not the data itself, we analyzed each trans
 
 The first three transactions were deployment and initial setup of the contract. Afterwards, we’ve found several _QueuedAction_ events emitted by the long executor itself and a few _ProposalCreated_, _AdminChanged,_ and _OwnershipTransferred_ logs. (e.g. [this one](https://etherscan.io/tx/0x558fa06a670098a995ad9b8c5496d135a8319b65fd9aad399d87d9f64cc62006#eventlog) or [this](https://etherscan.io/tx/0xb64d8c148d267bd59ae6627b6f94e6bd1ee9ffef0b090a65211a9f2204873f2a#eventlog))
 
-
 All the contracts where the Level 2 Executor became new admin and the ones, where it appeared as an emitter or just in calldata, were double-checked using the following code (proxy admin slot is `0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103`):
 
 ```jsx
@@ -59,11 +58,10 @@ Finally, four contracts were acknowledged as ones with Long executor as the prox
 
 [0xa1116930326d21fb917d5a27f1e9943a9595fb47](https://etherscan.io/address/0xa1116930326d21fb917d5a27f1e9943a9595fb47) (stkABPT)
 
-Changing of the admin is managed [here](https://github.com/bgd-labs/aave-gov-level-2-update/blob/f4a1a6bbaaecfdc11a04c5f79ef2a3ea2134b944/src/contracts/ProposalPayloadNewLongExecutor.sol#L56).
-
+Changing of the admin is managed [here](../src/contracts/ProposalPayloadNewLongExecutor.sol#L56).
 
 And as the owner:
 
 [0xEC568fffba86c094cf06b22134B23074DFE2252c](https://etherscan.io/address/0xec568fffba86c094cf06b22134b23074dfe2252c) (Governance V2)
 
-Transfer of the ownership is performed [here](https://github.com/bgd-labs/aave-gov-level-2-update/blob/f4a1a6bbaaecfdc11a04c5f79ef2a3ea2134b944/src/contracts/ProposalPayloadNewLongExecutor.sol#L55).
+Transfer of the ownership is performed [here](../src/contracts/ProposalPayloadNewLongExecutor.sol#L55).
