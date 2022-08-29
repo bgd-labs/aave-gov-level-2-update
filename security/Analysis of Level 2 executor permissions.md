@@ -62,6 +62,7 @@ Finally, four contracts were acknowledged as ones with Long executor as the prox
 
 Changing of the admin is managed [here](https://github.com/bgd-labs/aave-gov-level-2-update/blob/f4a1a6bbaaecfdc11a04c5f79ef2a3ea2134b944/src/contracts/ProposalPayloadNewLongExecutor.sol#L56).
 
+
 And as the owner:
 
 [0xEC568fffba86c094cf06b22134B23074DFE2252c](https://etherscan.io/address/0xec568fffba86c094cf06b22134b23074dfe2252c) (Governance V2)
