@@ -60,6 +60,7 @@ The main security guidelines followed have been:
 - Focus on generation of diffs with the current contracts deployed on Ethereum.
 - Full testing of the proposal themselves, together with checking that after they pass, the Aave governance operates normally with the new parameters.
 - Validation of the code by an external team to BGD and security review by SigmaPrime and Certora.
+- [Analysis](./security/Analysis%20of%20Level%202%20executor%20permissions.md) of the permissions that need to be assigned to the new executor.
 
 ## Setup
 ### Install
