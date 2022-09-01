@@ -29,7 +29,7 @@ Hence, it is only external users manually calling `isProposalOverGracePeriod()` 
 
 **Recommendations**
 
-The optimal mitigation would be to have `AaveGovernanceV2` to revert if `getProposalById()` is called with a proposal ID greater than or equal to `_proposalsCount` and return `false` if `proposal.executionTime = 0`.
+The optimal mitigation would be to have `AaveGovernanceV2.getProposalById()` revert if it is called with a proposal ID greater than or equal to `_proposalsCount` and return `false` if `proposal.executionTime = 0`.
 
 This would require updating the `AaveGovernanceV2` contract which does not seem like a worthwhile trade-off given the low impact of this issue.
 
@@ -40,23 +40,23 @@ This point will not be addressed, as it is out of bounds for this proposal.
 ## INFORMATIONAL: Insufficient Bounds Checks On `_updatePropositionThreshold()`, `_updateMinimumQuorum()`, `_updateVoteDifferential()`, `_updateVotingDuration()`
 
 The functions `_updatePropositionThreshold()`, `_updateMinimumQuorum()`, `_updateVoteDifferential()` are setters for percentage values.
-The percentages should be at least less than 10,000 (100%).
-Setting values to higher than 100% could accidentally brick the contract since no votes could pass.
-The risk is informational as changing these values requires a governance vote which should be checked by voters anyway.
+The percentages should be strictly less than 10,000 (100%).
+Setting values to higher than 100% could brick the contract since proposals would be unable to pass.
+The risk is informational as changing these values requires a governance proposal to pass, which should be checked by voters.
 
-`_updateVotingDuration()` should never allow a zero value as input otherwise the voting is bricked.
-If the duration is zero then `startBlock = endBlock` and there is no time to vote.
+`_updateVotingDuration()` should never allow the duration to be set to zero, otherwise the voting is bricked.
+If the duration is zero then `startBlock = endBlock` and there is no time to vote, the state will progress from pending to failed.
 
-Rated as informational as these value changes must be voted in by the governance who hopefully review the proposals before they vote.
+This issue is rated as informational as these value changes must be voted in by the governance who hopefully review the proposals before they vote.
 
 **Recommendations**
 
-Add upper bounds checks to the input value to ensure they are below some reasonable value.
+Add upper bounds checks to the input values to ensure they are below some reasonable value, e.g. 100%.
 - `_updatePropositionThreshold()`
 - `_updateMinimumQuorum()`
 - `_updateVoteDifferential()`
 
-Additionally, ensure `_updateVotingDuration()` is non-zero.
+Additionally, ensure `_updateVotingDuration()` had a non-zero duration parameter.
 
 **BGD answer**
 
@@ -75,7 +75,7 @@ One example in `Executor.sol` is that `delay` is a timestamp whereas `VOTING_DUR
 
 **Recommendations**
 
-When both are block height and timestamp are used it is desirable append a descriptor to the variable name.
+When both are block height and timestamp are used it is desirable to append a descriptor to the variable name.
 
 For example use `delayTime` or `VOTING_DURATION_BLOCKS`.
 
@@ -89,9 +89,9 @@ Natspec will be updated to clearly indicate if variable indicates time in second
 
 ### Identical proposals queued in the same block will overwrite each other in the executor.
 
-The function `queueTransaction()` (`cancelTransaction()` and `executeTransaction()`) should do not hash `proposalId` into the action hash.
+The function `queueTransaction()` (`cancelTransaction()` and `executeTransaction()`) do not hash `proposalId` into the action hash.
 
-As a result if two identical proposal are queued in the same block (or otherwise with the same `executionTime`) then they will overlap in the `_queuedTransactions` mapping.
+As a result if two identical proposals are queued in the same block (or otherwise with the same `executionTime`) then they will overlap in the `_queuedTransactions` mapping.
 
 This would require two proposals to pass with the exact same fields and so has negligible likelihood. Furthermore, the impact is low as only one of these proposals may be executed or cancelled and then both will be removed from the queue.
 
