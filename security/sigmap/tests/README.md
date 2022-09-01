@@ -16,7 +16,7 @@ pip install -r requirements.txt
 
 ## Running the Tests
 
-Tests can be run from the directory `review/tests`
+Tests can be run from this directory.
 
 ```sh
 brownie test
@@ -24,29 +24,15 @@ brownie test
 
 Note you can add all the pytest parameters/flags e.g.
 
-* `tests/test_deploy.py`
-* `-s`
-* `-v`
-* `-k <test_name>`
-
-
-## Initial Setup
-
-This only needs to be done the first time (or possibly just copy `review/tests` next time).
-
-From `review/tests` run
-
-```sh
-brownie init
-```
-
-Make sure the contracts have been copied to `review/tests/contracts`
+* `tests/test_executor.py` (pick a specific file)
+* `-s` (print std out)
+* `-v` (verbose)
+* `-k <test_name>` (run a specific test)
 
 
 ## Writing tests
 
-The same as the old `pytest` style. Add a file named `tests_<blah>.py`
-to the folder `review/tests/tests`.
+Add a file named `tests_<blah>.py` to the folder `./tests`.
 
 Each individual test case in the file created above must be a function named
 `test_<test_case>()`.
@@ -82,4 +68,4 @@ Then in another terminal run `brownie`.
 brownie test
 ```
 
-Note you'll need to delete `<path to disk storage folder>` to run the tests again.
+Note you'll need to kill `ganache-cli` and delete the folder `<path to disk storage folder>` to run the tests again otherwise it re-uses the previous db and complains about block numbers.
