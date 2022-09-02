@@ -22,7 +22,7 @@ RUN python3 -m pip install --no-cache-dir --upgrade pip && \
 python3 -m pip install --no-cache-dir -r requirements.txt --no-deps
 
 # Copy the contract source code and test suite
-COPY ./code /code
+# COPY ./code /code
 COPY ./tests /tests
 
 # Set the working directory to the tests/ dir
@@ -36,7 +36,7 @@ RUN brownie networks add development mainnet-fork-15265830 cmd=ganache-cli host=
 
 
 # Create a script for running Ganache and then running the tests (need to sleep to ensure Ganache has initialised)
-RUN echo "brownie test -v" > run-tests.sh
+RUN echo "brownie test -sv" > run-tests.sh
 RUN chmod u+x run-tests.sh
 
 # "docker run" will execute the tests against the compiled contracts
