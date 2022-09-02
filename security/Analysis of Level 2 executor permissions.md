@@ -29,7 +29,7 @@ The search for appearances of the Level 2 Executor (Long Executor) address gave 
   | 0x3c0062297d6e775948a15004f6bab8117df828e9db9a0b31cd4b570d4a5c56c0 | 12485690 | 20 |
   | 0x2baa131d2268216fe6173acd1910a0baa12b4792db340b6e585d22ee75bed0be | 13419950 | 43 |
 
-As search only gives us appearances, not the data itself, we analyzed each transaction individually using Etherscan for particular places where the Level 2 Executor appeared.
+We chose to use Etherscan to analyze details of found transactions as we are familiar with its interface.
 
 The first three transactions were deployment and initial setup of the contract. Afterwards, we’ve found several _QueuedAction_ events emitted by the long executor itself and a few _ProposalCreated_, _AdminChanged,_ and _OwnershipTransferred_ logs. (e.g. [this one](https://etherscan.io/tx/0x558fa06a670098a995ad9b8c5496d135a8319b65fd9aad399d87d9f64cc62006#eventlog) or [this](https://etherscan.io/tx/0xb64d8c148d267bd59ae6627b6f94e6bd1ee9ffef0b090a65211a9f2204873f2a#eventlog))
 
