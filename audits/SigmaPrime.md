@@ -37,6 +37,11 @@ This would require updating the `AaveGovernanceV2` contract which does not seem 
 
 This point will not be addressed, as it is out of bounds for this proposal.
 
+**Resolution: Closed**
+
+This issue will not be fixed by the development team due to the insignificant impact and to minimise the scope of the changes.
+
+
 ## INFORMATIONAL: Insufficient Bounds Checks On `_updatePropositionThreshold()`, `_updateMinimumQuorum()`, `_updateVoteDifferential()`, `_updateVotingDuration()`
 
 The functions `_updatePropositionThreshold()`, `_updateMinimumQuorum()`, `_updateVoteDifferential()` are setters for percentage values.
@@ -67,11 +72,16 @@ Bound checks will be added to 100% (10000) on
 
 and a check will also be added to ensure `_updateVotingDuration()` is non-zero.
 
+**Resolution: Resolved**
+
+The recommendations have been implemented in commits [c88c126](https://github.com/bgd-labs/aave-gov-level-2-update/commit/c88c126a22b20ffc8314d88a431c35b2a5d79835) and [688d6c2](https://github.com/bgd-labs/aave-gov-level-2-update/commit/688d6c27ee8091f7c25af189150c02d0b27fc295).
+
+
 ## Miscellaneous
 
 ### Clarify in natspec whether durations and delays are in blocks vs timestamp.
 
-One example in `Executor.sol` is that `delay` is a timestamp whereas `VOTING_DURATION` in blocks.
+One example in `Executor.sol` is that `delay` is a timestamp whereas `VOTING_DURATION` is in blocks.
 
 **Recommendations**
 
@@ -81,11 +91,16 @@ For example use `delayTime` or `VOTING_DURATION_BLOCKS`.
 
 Note that due to compatibility with `AaveGovernanceV2` and `IExecutor` it may be undesirable to change variable names.
 
-An alternative mitigation is to clearly document the units in the natspec.
+An alternative mitigation is to clearly document the units in the Natspec.
 
 **BGD answer**
 
 Natspec will be updated to clearly indicate if variable indicates time in seconds or indicates number of blocks.
+
+**Resolution: Resovled**
+
+The Natspec comments have been updated to include the units for each variable in commit [ae15802](https://github.com/bgd-labs/aave-gov-level-2-update/commit/ae158023ccfe22c9abbcb8eb380ca9e1c1796099).
+
 
 ### Identical proposals queued in the same block will overwrite each other in the executor.
 
@@ -99,3 +114,7 @@ This would require two proposals to pass with the exact same fields and so has n
 
 This point will not be addressed, as for the cases where a proposal needs to do two actions with the same parameters (which would be the case to trigger this exception), the actions should be added to the same payload
 which would then not trigger this point.
+
+**Resolution: Closed**
+
+The development team have opted not to fix this issue in accordance with the above comments. Sigma Prime agrees with these comments, that there is negligible security risk and genuine use-cases will combine multiple actions into a single proposal.
