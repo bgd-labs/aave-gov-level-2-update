@@ -394,6 +394,7 @@ contract Executor is IExecutor {
   /// updates vote differential
   function _updateVoteDifferential(uint256 voteDifferential) internal {
     require(voteDifferential <= ONE_HUNDRED_WITH_PRECISION, 'VOTE_DIFFERENTIAL_CAN_NOT_BE_GREATER_THAN_100%');
+    require(voteDifferential > 0, 'VOTE_DIFFERENTIAL_CAN_NOT_BE_LESS_THAN_0');
     VOTE_DIFFERENTIAL = voteDifferential;
     emit VoteDifferentialUpdated(voteDifferential);
   }
@@ -401,6 +402,7 @@ contract Executor is IExecutor {
   /// updates minimum quorum
   function _updateMinimumQuorum(uint256 minimumQuorum) internal {
     require(minimumQuorum <= ONE_HUNDRED_WITH_PRECISION, 'MINIMUM_QUORUM_CAN_NOT_BE_GREATER_THAN_100%');
+    require(minimumQuorum > 0, 'MINIMUM_QUORUM_CAN_NOT_BE_LESS_THAN_0');
     MINIMUM_QUORUM = minimumQuorum;
     emit MinimumQuorumUpdated(minimumQuorum);
   }
@@ -408,6 +410,7 @@ contract Executor is IExecutor {
   /// updates proposition threshold
   function _updatePropositionThreshold(uint256 propositionThreshold) internal {
     require(propositionThreshold <= ONE_HUNDRED_WITH_PRECISION, 'PROPOSITION_THRESHOLD_CAN_NOT_BE_GREATER_THAN_100%');
+    require(propositionThreshold > 0, 'PROPOSITION_THRESHOLD_CAN_NOT_BE_LESS_THAN_0');
     PROPOSITION_THRESHOLD = propositionThreshold;
     emit PropositionThresholdUpdated(propositionThreshold);
   }
