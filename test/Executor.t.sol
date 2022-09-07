@@ -99,6 +99,13 @@ contract ExecutorTest is Test {
     executor.updateVoteDifferential(newVoteDifferential);
   }
 
+  function testUpdateVoteDifferentialWhen0() public {
+    hoax(address(executor));
+    uint256 newVoteDifferential = 0;
+    vm.expectRevert(bytes('VOTE_DIFFERENTIAL_CAN_NOT_BE_LESS_THAN_0'));
+    executor.updateVoteDifferential(newVoteDifferential);
+  }
+
   function testUpdateVoteDifferentialWhenNotAdmin() public {
     uint256 newVoteDifferential = 2000;
     vm.expectRevert(bytes('CALLER_NOT_EXECUTOR'));
@@ -129,6 +136,13 @@ contract ExecutorTest is Test {
     executor.updateMinimumQuorum(newMinimumQuorum);
   }
 
+  function testUpdateMinimumQuorumWhen0() public {
+    hoax(address(executor));
+    uint256 newMinimumQuorum = 0;
+    vm.expectRevert(bytes('MINIMUM_QUORUM_CAN_NOT_BE_LESS_THAN_0'));
+    executor.updateMinimumQuorum(newMinimumQuorum);
+  }
+
   function testUpdatePropositionThreshold() public {
     hoax(address(executor));
     uint256 newMinimumPropositionThreshold = 300;
@@ -145,6 +159,14 @@ contract ExecutorTest is Test {
     uint256 newMinimumPropositionThreshold = 10001;
 
     vm.expectRevert(bytes('PROPOSITION_THRESHOLD_CAN_NOT_BE_GREATER_THAN_100%'));
+    executor.updatePropositionThreshold(newMinimumPropositionThreshold);
+  }
+
+  function testUpdatePropositionThresholdTo0() public {
+    hoax(address(executor));
+    uint256 newMinimumPropositionThreshold = 0;
+
+    vm.expectRevert(bytes('PROPOSITION_THRESHOLD_CAN_NOT_BE_LESS_THAN_0'));
     executor.updatePropositionThreshold(newMinimumPropositionThreshold);
   }
 
