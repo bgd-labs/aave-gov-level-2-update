@@ -41,6 +41,51 @@ contract ExecutorTest is Test {
     );
   }
 
+  function testConstructorWhenGracePeriodIs0() public {
+    vm.expectRevert(bytes('GRACE_PERIOD_LESS_THAN_0'));
+    new Executor(
+      ADMIN,
+      DELAY,
+      0,
+      MINIMUM_DELAY,
+      MAXIMUM_DELAY,
+      PROPOSITION_THRESHOLD,
+      VOTING_DURATION,
+      VOTE_DIFFERENTIAL,
+      MINIMUM_QUORUM
+    );
+  }
+
+  function testConstructorWhenDelayLessMinimumDelay() public {
+    vm.expectRevert(bytes('DELAY_SHORTER_THAN_MINIMUM'));
+    new Executor(
+      ADMIN,
+      MINIMUM_DELAY - 10,
+      GRACE_PERIOD,
+      MINIMUM_DELAY,
+      MAXIMUM_DELAY,
+      PROPOSITION_THRESHOLD,
+      VOTING_DURATION,
+      VOTE_DIFFERENTIAL,
+      MINIMUM_QUORUM
+    );
+  }
+
+  function testConstructorWhenDelayGreaterThanMaxDelay() public {
+    vm.expectRevert(bytes('DELAY_LONGER_THAN_MAXIMUM'));
+    new Executor(
+      ADMIN,
+      MAXIMUM_DELAY + 10,
+      GRACE_PERIOD,
+      MINIMUM_DELAY,
+      MAXIMUM_DELAY,
+      PROPOSITION_THRESHOLD,
+      VOTING_DURATION,
+      VOTE_DIFFERENTIAL,
+      MINIMUM_QUORUM
+    );
+  }
+
   function testContstructor() public {
     assertEq(ADMIN, executor.getAdmin());
     assertEq(DELAY, executor.getDelay());

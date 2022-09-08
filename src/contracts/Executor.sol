@@ -66,7 +66,9 @@ contract Executor is IExecutor {
     _delay = delay;
     _admin = admin;
 
+    require(gracePeriod > 0, 'GRACE_PERIOD_LESS_THAN_0');
     GRACE_PERIOD = gracePeriod;
+
     MINIMUM_DELAY = minimumDelay;
     MAXIMUM_DELAY = maximumDelay;
 
