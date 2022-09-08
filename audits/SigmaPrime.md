@@ -76,6 +76,8 @@ and a check will also be added to ensure `_updateVotingDuration()` is non-zero.
 
 The recommendations have been implemented in commits [c88c126](https://github.com/bgd-labs/aave-gov-level-2-update/commit/c88c126a22b20ffc8314d88a431c35b2a5d79835) and [688d6c2](https://github.com/bgd-labs/aave-gov-level-2-update/commit/688d6c27ee8091f7c25af189150c02d0b27fc295).
 
+Additionally, zero checks have been added to `GRACE_PERIOD` in the constructor to ensure it is non-zero. The changes can be seen in commit [06d71de](https://github.com/bgd-labs/aave-gov-level-2-update/commit/06d71de35398eb02950480a952dd8e28a3ce3bb8).
+
 
 ## Miscellaneous
 
