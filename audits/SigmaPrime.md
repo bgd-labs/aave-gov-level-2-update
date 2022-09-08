@@ -74,7 +74,7 @@ and a check will also be added to ensure `_updateVotingDuration()` is non-zero.
 
 **Resolution: Resolved**
 
-The recommendations have been implemented in commits [c88c126](https://github.com/bgd-labs/aave-gov-level-2-update/commit/c88c126a22b20ffc8314d88a431c35b2a5d79835) and [688d6c2](https://github.com/bgd-labs/aave-gov-level-2-update/commit/688d6c27ee8091f7c25af189150c02d0b27fc295).
+The recommendations have been implemented by adding upper bounds, lower bounds and zero checks in the following commits [c88c126](https://github.com/bgd-labs/aave-gov-level-2-update/commit/c88c126a22b20ffc8314d88a431c35b2a5d79835), [688d6c2](https://github.com/bgd-labs/aave-gov-level-2-update/commit/688d6c27ee8091f7c25af189150c02d0b27fc295) and [0d9f679](https://github.com/bgd-labs/aave-gov-level-2-update/commit/0d9f679c643f9c57d36e4432d6566fc8e3ca5a62).
 
 
 ## Miscellaneous
