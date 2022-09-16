@@ -23,7 +23,7 @@ contract DeployGovLvl2Proposals is Script {
   uint256 public constant VOTE_DIFFERENTIAL = 650; // 6.5% - proposal change
   uint256 public constant MINIMUM_QUORUM = 650; // 6.5% - proposal change
 
-  function run() {
+  function run() public {
     vm.startBroadcast();
 
     // ------------- LONG EXECUTOR ------------- //
@@ -52,7 +52,7 @@ contract DeployGovLvl2Proposals is Script {
     );
 
     // ------------- AUTONOMOUS PROPOSAL ------------- //
-    AutonomousGovLvl2Proposal autonomousGovLvl2Proposal = new AutonomousGovLvl2Proposal(lvl2Payload, ecosystemPayload, LVL2_IPFS_HASH, RESERVE_ECOSYSTEM_IPFS_HASH);
+    AutonomousGovLvl2Proposal autonomousGovLvl2Proposal = new AutonomousGovLvl2Proposal(address(lvl2Payload), address(ecosystemPayload), LVL2_IPFS_HASH, RESERVE_ECOSYSTEM_IPFS_HASH);
 
     vm.stopBroadcast();
   }

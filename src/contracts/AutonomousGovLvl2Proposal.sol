@@ -14,16 +14,15 @@ contract AutonomousGovLvl2Proposal {
   uint256 public ecosystemReserveProposalId;
 
 
-  constructor (address lvl2Payload, bytes32 reserveEcosystemPayload, bytes32 lvl2IpfsHash, bytes32 reserveEcosystemIpfsHash) {
+  constructor (address lvl2Payload, address reserveEcosystemPayload, bytes32 lvl2IpfsHash, bytes32 reserveEcosystemIpfsHash) {
     LVL2_PAYLOAD = lvl2Payload;
     LVL2_IPFS_HASH = lvl2IpfsHash;
     RESERVE_ECOSYSTEM_PAYLOAD = reserveEcosystemPayload;
     RESERVE_ECOSYSTEM_IPFS_HASH = reserveEcosystemIpfsHash;
   }
 
-  function createLvl2Proposal() external {
-    // TODO: is there really a need to check if enough proposal power? it will get checked on proposal creation call either way
-    lvl2ProposalId = _createProposal(LVL2_PAYLOAD, LVL2_IPFS_HASH);
+  function createProposalsForGovAdjustments() external {
+    lvl2ProposalId = _createLvl2Proposal(LVL2_PAYLOAD, LVL2_IPFS_HASH);
 
     ecosystemReserveProposalId = _createEcosystemReserveProposal(RESERVE_ECOSYSTEM_PAYLOAD, RESERVE_ECOSYSTEM_IPFS_HASH);
   }
