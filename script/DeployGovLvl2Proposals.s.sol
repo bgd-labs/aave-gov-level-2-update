@@ -6,7 +6,7 @@ import { AaveEcosystemReserveV2 } from "src/contracts/AaveEcosystemReserveV2.sol
 import { Executor } from "src/contracts/Executor.sol";
 import { ProposalPayloadNewLongExecutor } from "src/contracts/ProposalPayloadNewLongExecutor.sol";
 import { ProposalPayloadAaveEcosystemReserveWithVoting } from "src/contracts/ProposalPayloadAaveEcosystemReserveWithVoting.sol";
-import { AutonomousGovLvl2Proposal } from 'src/contracts/AutonomousGovLvl2Proposal.sol';
+import {AutonomousProposalsForGovAdjustments} from "src/contracts/AutonomousProposalsForGovAdjustments.sol";
 
 contract DeployGovLvl2Proposals is Script {
   bytes32 public constant LVL2_IPFS_HASH = bytes32(0); // TODO: add correct hash
@@ -52,7 +52,7 @@ contract DeployGovLvl2Proposals is Script {
     );
 
     // ------------- AUTONOMOUS PROPOSAL ------------- //
-    AutonomousGovLvl2Proposal autonomousGovLvl2Proposal = new AutonomousGovLvl2Proposal(address(lvl2Payload), address(ecosystemPayload), LVL2_IPFS_HASH, RESERVE_ECOSYSTEM_IPFS_HASH);
+    AutonomousProposalsForGovAdjustments autonomousGovLvl2Proposal = new AutonomousProposalsForGovAdjustments(address(lvl2Payload), address(ecosystemPayload), LVL2_IPFS_HASH, RESERVE_ECOSYSTEM_IPFS_HASH);
 
     vm.stopBroadcast();
   }

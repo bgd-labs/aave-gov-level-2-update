@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import {AaveGovernanceV2, IExecutorWithTimelock, IGovernanceStrategy} from 'aave-address-book/AaveGovernanceV2.sol';
 
-contract AutonomousGovLvl2Proposal {
+contract AutonomousProposalsForGovAdjustments {
   address public immutable LVL2_PAYLOAD;
   bytes32 public immutable LVL2_IPFS_HASH;
 
