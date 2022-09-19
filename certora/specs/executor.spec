@@ -82,11 +82,6 @@ filtered{f -> ! f.isView}
     address _pendingAdmin = getPendingAdmin();
     f(e, args);
     address admin_ = getAdmin();
-    if (f.selector == acceptAdmin().selector){
-        assert admin_ == _pendingAdmin;
-        assert e.msg.sender == _pendingAdmin;
-    }
-    else{
-        assert _admin != admin_ => e.msg.sender == _admin;
-    }
+    assert f.selector == acceptAdmin().selector => (admin_ == _pendingAdmin && e.msg.sender == _pendingAdmin);
+    assert f.selector != acceptAdmin().selector => (_admin != admin_ => e.msg.sender == _admin);
 }
