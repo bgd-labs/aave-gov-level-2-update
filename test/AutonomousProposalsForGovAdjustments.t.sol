@@ -35,6 +35,7 @@ contract AutonomousProposalsForGovAdjustmentsTest is Test {
   ProposalPayloadAaveEcosystemReserveWithVoting public ecosystemPayload;
   AutonomousProposalsForGovAdjustments public autonomousGovLvl2Proposal;
 
+
   function setUp() public {
     vm.createSelectFork(vm.rpcUrl("ethereum"), 15370248);
     beforeProposalCount = GovHelpers.GOV.getProposalsCount();
@@ -65,7 +66,9 @@ contract AutonomousProposalsForGovAdjustmentsTest is Test {
     );
 
     // ------------- AUTONOMOUS PROPOSAL ------------- //
-    autonomousGovLvl2Proposal = new AutonomousProposalsForGovAdjustments(address(lvl2Payload), address(ecosystemPayload), LVL2_IPFS_HASH, RESERVE_ECOSYSTEM_IPFS_HASH);
+    autonomousGovLvl2Proposal = new AutonomousProposalsForGovAdjustments(address(lvl2Payload), address(ecosystemPayload), LVL2_IPFS_HASH, RESERVE_ECOSYSTEM_IPFS_HASH, block.timestamp + 10);
+
+    skip(11);
   }
 
   function testCreateProposalsWhenAllInfoCorrect() public {
@@ -101,21 +104,24 @@ contract AutonomousProposalsForGovAdjustmentsTest is Test {
   }
 
   function testCreateProposalsWithWrongIpfsLvl2() public {
-    AutonomousProposalsForGovAdjustments autonomous = new AutonomousProposalsForGovAdjustments(address(lvl2Payload), address(ecosystemPayload), bytes32(0), RESERVE_ECOSYSTEM_IPFS_HASH);
+    AutonomousProposalsForGovAdjustments autonomous = new AutonomousProposalsForGovAdjustments(address(lvl2Payload), address(ecosystemPayload), bytes32(0), RESERVE_ECOSYSTEM_IPFS_HASH, block.timestamp + 10);
+    skip(11);
 
     vm.expectRevert(bytes('IPFS_HASH_BYTES32_0'));
     autonomous.createProposalsForGovAdjustments();
   }
 
   function testCreateProposalsWithWrongPayloadLvl2() public {
-    AutonomousProposalsForGovAdjustments autonomous = new AutonomousProposalsForGovAdjustments(address(0), address(ecosystemPayload), LVL2_IPFS_HASH, RESERVE_ECOSYSTEM_IPFS_HASH);
+    AutonomousProposalsForGovAdjustments autonomous = new AutonomousProposalsForGovAdjustments(address(0), address(ecosystemPayload), LVL2_IPFS_HASH, RESERVE_ECOSYSTEM_IPFS_HASH, block.timestamp + 10);
+    skip(11);
 
     vm.expectRevert(bytes('PAYLOAD_ADDRESS_0'));
     autonomous.createProposalsForGovAdjustments();
   }
 
   function testCreateProposalsWithWrongIpfsEcosystem() public {
-    AutonomousProposalsForGovAdjustments autonomous = new AutonomousProposalsForGovAdjustments(address(lvl2Payload), address(ecosystemPayload), LVL2_IPFS_HASH, bytes32(0));
+    AutonomousProposalsForGovAdjustments autonomous = new AutonomousProposalsForGovAdjustments(address(lvl2Payload), address(ecosystemPayload), LVL2_IPFS_HASH, bytes32(0), block.timestamp + 10);
+    skip(11);
 
     hoax(GovHelpers.AAVE_WHALE);
     IGovernancePowerDelegationToken(GovHelpers.AAVE).delegateByType(address(autonomous), IGovernancePowerDelegationToken.DelegationType.PROPOSITION_POWER);
@@ -127,7 +133,8 @@ contract AutonomousProposalsForGovAdjustmentsTest is Test {
   }
 
   function testCreateProposalsWithWrongPayloadEcosystem() public {
-    AutonomousProposalsForGovAdjustments autonomous = new AutonomousProposalsForGovAdjustments(address(lvl2Payload), address(0), LVL2_IPFS_HASH, RESERVE_ECOSYSTEM_IPFS_HASH);
+    AutonomousProposalsForGovAdjustments autonomous = new AutonomousProposalsForGovAdjustments(address(lvl2Payload), address(0), LVL2_IPFS_HASH, RESERVE_ECOSYSTEM_IPFS_HASH, block.timestamp + 10);
+    skip(11);
 
     hoax(GovHelpers.AAVE_WHALE);
     IGovernancePowerDelegationToken(GovHelpers.AAVE).delegateByType(address(autonomous), IGovernancePowerDelegationToken.DelegationType.PROPOSITION_POWER);
@@ -139,9 +146,17 @@ contract AutonomousProposalsForGovAdjustmentsTest is Test {
   }
 
   function testCreateProposalsWithoutPropositionPower() public {
-    AutonomousProposalsForGovAdjustments autonomous = new AutonomousProposalsForGovAdjustments(address(lvl2Payload), address(ecosystemPayload), LVL2_IPFS_HASH, RESERVE_ECOSYSTEM_IPFS_HASH);
+    AutonomousProposalsForGovAdjustments autonomous = new AutonomousProposalsForGovAdjustments(address(lvl2Payload), address(ecosystemPayload), LVL2_IPFS_HASH, RESERVE_ECOSYSTEM_IPFS_HASH, block.timestamp + 10);
+    skip(11);
 
     vm.expectRevert((bytes('PROPOSITION_CREATION_INVALID')));
+    autonomous.createProposalsForGovAdjustments();
+  }
+
+  function testCreateInIncorrectTimestamp() public {
+    AutonomousProposalsForGovAdjustments autonomous = new AutonomousProposalsForGovAdjustments(address(lvl2Payload), address(ecosystemPayload), LVL2_IPFS_HASH, RESERVE_ECOSYSTEM_IPFS_HASH, block.timestamp + 10);
+
+    vm.expectRevert((bytes('CREATION_TIMESTAMP_NOT_YET_REACHED')));
     autonomous.createProposalsForGovAdjustments();
   }
 

@@ -23,6 +23,8 @@ contract DeployGovLvl2Proposals is Script {
   uint256 public constant VOTE_DIFFERENTIAL = 650; // 6.5% - proposal change
   uint256 public constant MINIMUM_QUORUM = 650; // 6.5% - proposal change
 
+  uint256 public constant CREATION_TIMESTAMP = 1664358465; // Wednesday, September 28, 2022 9:47:45 AM // TODO: add correct date
+
   function run() public {
     vm.startBroadcast();
 
@@ -52,7 +54,7 @@ contract DeployGovLvl2Proposals is Script {
     );
 
     // ------------- AUTONOMOUS PROPOSAL ------------- //
-    AutonomousProposalsForGovAdjustments autonomousGovLvl2Proposal = new AutonomousProposalsForGovAdjustments(address(lvl2Payload), address(ecosystemPayload), LVL2_IPFS_HASH, RESERVE_ECOSYSTEM_IPFS_HASH);
+    AutonomousProposalsForGovAdjustments autonomousGovLvl2Proposal = new AutonomousProposalsForGovAdjustments(address(lvl2Payload), address(ecosystemPayload), LVL2_IPFS_HASH, RESERVE_ECOSYSTEM_IPFS_HASH, CREATION_TIMESTAMP);
 
     vm.stopBroadcast();
   }

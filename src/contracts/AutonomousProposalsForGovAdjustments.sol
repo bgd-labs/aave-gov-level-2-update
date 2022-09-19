@@ -13,6 +13,8 @@ import {AaveGovernanceV2, IExecutorWithTimelock, IGovernanceStrategy} from 'aave
  *   `createProposalsForGovAdjustments` method to create the two proposals.
  * - `createProposalsForGovAdjustments` can only be called once, while proposals are not created. This is so proposals do not
  *   keep being created, as the contract could maintain the proposition power, while delegators do not withdraw their delegation
+ * - `createProposalsForGovAdjustments` can only be called after specified date. This is to ensure that there is time to amass
+ *   enough proposition power into the contract, and that users have time to prepare for the vote.
  */
 contract AutonomousProposalsForGovAdjustments {
   address public immutable LVL2_PAYLOAD;
@@ -21,20 +23,24 @@ contract AutonomousProposalsForGovAdjustments {
   address public immutable RESERVE_ECOSYSTEM_PAYLOAD;
   bytes32 public immutable RESERVE_ECOSYSTEM_IPFS_HASH;
 
+  uint256 public immutable CREATION_TIMESTAMP;
+
   uint256 public lvl2ProposalId;
   uint256 public ecosystemReserveProposalId;
 
   bool public proposalsCreated;
 
-  constructor (address lvl2Payload, address reserveEcosystemPayload, bytes32 lvl2IpfsHash, bytes32 reserveEcosystemIpfsHash) {
+  constructor (address lvl2Payload, address reserveEcosystemPayload, bytes32 lvl2IpfsHash, bytes32 reserveEcosystemIpfsHash, uint256 creationTimestamp) {
     LVL2_PAYLOAD = lvl2Payload;
     LVL2_IPFS_HASH = lvl2IpfsHash;
     RESERVE_ECOSYSTEM_PAYLOAD = reserveEcosystemPayload;
     RESERVE_ECOSYSTEM_IPFS_HASH = reserveEcosystemIpfsHash;
+    CREATION_TIMESTAMP = creationTimestamp;
   }
 
   function createProposalsForGovAdjustments() external {
     require(proposalsCreated == false, 'PROPOSALS_ALREADY_CREATED');
+    require(block.timestamp > CREATION_TIMESTAMP, 'CREATION_TIMESTAMP_NOT_YET_REACHED');
 
     lvl2ProposalId = _createLvl2Proposal(LVL2_PAYLOAD, LVL2_IPFS_HASH);
 
