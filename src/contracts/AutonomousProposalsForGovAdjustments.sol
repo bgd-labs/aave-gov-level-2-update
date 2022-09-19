@@ -15,52 +15,55 @@ import {AaveGovernanceV2, IExecutorWithTimelock, IGovernanceStrategy} from 'aave
  *   keep being created, as the contract could maintain the proposition power, while delegators do not withdraw their delegation
  * - `createProposalsForGovAdjustments` can only be called after specified date. This is to ensure that there is time to amass
  *   enough proposition power into the contract, and that users have time to prepare for the vote.
+ * - The payloads used will be:
+ *   - NEW_LONG_EXECUTOR_PAYLOAD: src/contracts/ProposalPayloadNewLongExecutor.sol
+ *   - ECOSYSTEM_RESERVE_WITH_VOTING_PAYLOAD: src/contracts/ProposalPayloadAaveEcosystemReserveWithVoting.sol
  */
 contract AutonomousProposalsForGovAdjustments {
-  address public immutable LVL2_PAYLOAD;
+  address public immutable NEW_LONG_EXECUTOR_PAYLOAD;
   bytes32 public immutable LVL2_IPFS_HASH;
 
-  address public immutable RESERVE_ECOSYSTEM_PAYLOAD;
+  address public immutable ECOSYSTEM_RESERVE_WITH_VOTING_PAYLOAD;
   bytes32 public immutable RESERVE_ECOSYSTEM_IPFS_HASH;
 
   uint256 public immutable CREATION_TIMESTAMP;
 
-  uint256 public lvl2ProposalId;
+  uint256 public newLongExecutorProposalId;
   uint256 public ecosystemReserveProposalId;
 
   event ProposalsCreated(
     address executor,
-    uint256 lvl2ProposalId,
+    uint256 newLongExecutorProposalId,
     uint256 ecosystemReserveProposalId,
-    address lvl2Payload,
+    address newLongExecutorPayload,
     bytes32 lvl2IpfsHash,
-    address reserveEcosystemPayload,
+    address ecosystemReserveWithVotingPayload,
     bytes32 reserveEcosystemIpfsHash
   );
 
-  constructor (address lvl2Payload, address reserveEcosystemPayload, bytes32 lvl2IpfsHash, bytes32 reserveEcosystemIpfsHash, uint256 creationTimestamp) {
-    require(lvl2Payload != address(0), "LVL2_PAYLOAD_ADDRESS_0");
-    require(lvl2IpfsHash != bytes32(0), "LVL2_IPFS_HASH_BYTES32_0");
-    require(reserveEcosystemPayload != address(0), "ECOSYSTEM_RESERVE_PAYLOAD_ADDRESS_0");
-    require(reserveEcosystemIpfsHash != bytes32(0), "ECOSYSTEM_RESERVE_IPFS_HASH_BYTES32_0");
+  constructor (address newLongExecutorPayload, address ecosystemReserveWithVotingPayload, bytes32 lvl2IpfsHash, bytes32 reserveEcosystemIpfsHash, uint256 creationTimestamp) {
+    require(newLongExecutorPayload != address(0), "NEW_LONG_EXECUTOR_PAYLOAD_ADDRESS_0");
+    require(lvl2IpfsHash != bytes32(0), "NEW_LONG_EXECUTOR_PAYLOAD_IPFS_HASH_BYTES32_0");
+    require(ecosystemReserveWithVotingPayload != address(0), "ECOSYSTEM_RESERVE_PAYLOAD_ADDRESS_0");
+    require(reserveEcosystemIpfsHash != bytes32(0), "ECOSYSTEM_RESERVE_PAYLOAD_IPFS_HASH_BYTES32_0");
     require(creationTimestamp > block.timestamp, 'CREATION_TIMESTAMP_TO_EARLY');
 
-    LVL2_PAYLOAD = lvl2Payload;
+    NEW_LONG_EXECUTOR_PAYLOAD = newLongExecutorPayload;
     LVL2_IPFS_HASH = lvl2IpfsHash;
-    RESERVE_ECOSYSTEM_PAYLOAD = reserveEcosystemPayload;
+    ECOSYSTEM_RESERVE_WITH_VOTING_PAYLOAD = ecosystemReserveWithVotingPayload;
     RESERVE_ECOSYSTEM_IPFS_HASH = reserveEcosystemIpfsHash;
     CREATION_TIMESTAMP = creationTimestamp;
   }
 
   function createProposalsForGovAdjustments() external {
-    require(lvl2ProposalId == 0 && ecosystemReserveProposalId == 0, 'PROPOSALS_ALREADY_CREATED');
+    require(newLongExecutorProposalId == 0 && ecosystemReserveProposalId == 0, 'PROPOSALS_ALREADY_CREATED');
     require(block.timestamp > CREATION_TIMESTAMP, 'CREATION_TIMESTAMP_NOT_YET_REACHED');
 
-    lvl2ProposalId = _createLvl2Proposal(LVL2_PAYLOAD, LVL2_IPFS_HASH);
+    newLongExecutorProposalId = _createLvl2Proposal(NEW_LONG_EXECUTOR_PAYLOAD, LVL2_IPFS_HASH);
 
-    ecosystemReserveProposalId = _createEcosystemReserveProposal(RESERVE_ECOSYSTEM_PAYLOAD, RESERVE_ECOSYSTEM_IPFS_HASH, lvl2ProposalId);
+    ecosystemReserveProposalId = _createEcosystemReserveProposal(ECOSYSTEM_RESERVE_WITH_VOTING_PAYLOAD, RESERVE_ECOSYSTEM_IPFS_HASH, newLongExecutorProposalId);
 
-    emit ProposalsCreated(msg.sender, lvl2ProposalId, ecosystemReserveProposalId, LVL2_PAYLOAD, LVL2_IPFS_HASH, RESERVE_ECOSYSTEM_PAYLOAD, RESERVE_ECOSYSTEM_IPFS_HASH);
+    emit ProposalsCreated(msg.sender, newLongExecutorProposalId, ecosystemReserveProposalId, NEW_LONG_EXECUTOR_PAYLOAD, LVL2_IPFS_HASH, ECOSYSTEM_RESERVE_WITH_VOTING_PAYLOAD, RESERVE_ECOSYSTEM_IPFS_HASH);
   }
 
   function _createLvl2Proposal(address payload, bytes32 ipfsHash) internal returns (uint256) {

@@ -37,11 +37,11 @@ contract AutonomousProposalsForGovAdjustmentsTest is Test {
 
   event ProposalsCreated(
     address executor,
-    uint256 lvl2ProposalId,
+    uint256 newLongExecutorProposalId,
     uint256 ecosystemReserveProposalId,
-    address lvl2Payload,
+    address newLongExecutorPayload,
     bytes32 lvl2IpfsHash,
-    address reserveEcosystemPayload,
+    address ecosystemReserveWithVotingPayload,
     bytes32 reserveEcosystemIpfsHash
   );
 
@@ -132,18 +132,18 @@ contract AutonomousProposalsForGovAdjustmentsTest is Test {
   }
 
   function testCreateProposalsWithWrongIpfsLvl2() public {
-    vm.expectRevert(bytes('LVL2_IPFS_HASH_BYTES32_0'));
+    vm.expectRevert(bytes('NEW_LONG_EXECUTOR_PAYLOAD_IPFS_HASH_BYTES32_0'));
     new AutonomousProposalsForGovAdjustments(address(lvl2Payload), address(ecosystemPayload), bytes32(0), RESERVE_ECOSYSTEM_IPFS_HASH, block.timestamp + 10);
 
   }
 
   function testCreateProposalsWithWrongPayloadLvl2() public {
-    vm.expectRevert(bytes('LVL2_PAYLOAD_ADDRESS_0'));
+    vm.expectRevert(bytes('NEW_LONG_EXECUTOR_PAYLOAD_ADDRESS_0'));
     new AutonomousProposalsForGovAdjustments(address(0), address(ecosystemPayload), LVL2_IPFS_HASH, RESERVE_ECOSYSTEM_IPFS_HASH, block.timestamp + 10);
   }
 
   function testCreateProposalsWithWrongIpfsEcosystem() public {
-    vm.expectRevert(bytes('ECOSYSTEM_RESERVE_IPFS_HASH_BYTES32_0'));
+    vm.expectRevert(bytes('ECOSYSTEM_RESERVE_PAYLOAD_IPFS_HASH_BYTES32_0'));
     new AutonomousProposalsForGovAdjustments(address(lvl2Payload), address(ecosystemPayload), LVL2_IPFS_HASH, bytes32(0), block.timestamp + 10);
   }
 
