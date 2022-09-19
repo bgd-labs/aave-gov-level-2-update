@@ -92,26 +92,22 @@ forge build
 
 ### Deploy
 
+As this process will have two steps (LongExecutor, and EcosystemReserve) an [AutonomousProposal contract](./src/contracts/AutonomousProposalsForGovAdjustments.sol) has been created. 
+This contract has been created, so users can delegate its proposition power to the contract, and then, when enough proposition has been delegated, anyone will be able to call the contract method:
+- `createProposalsForGovAdjustments`: This method will create the proposal for the new LongExecutor, and use this proposal id to create the proposal for the EcosystemReserve, that will use its
+  voting power to vote `yes` on the LongExecutor proposal.
+This was done, so both steps can happen seamlessly, and for ease of proposition power gathering, as two proposals need to be created for the Governance necessary adjustments.
+
 To deploy the necessary payloads and proposal creations, a [Makefile](Makefile) was created, with the following commands:
 
-- [LongExecutor Payload](/script/DeployLongExecutorPayload.s.sol): `make deploy-long-executor-payload-<ledger|pk>`
-
-To create the LongExecutor Proposal, the payload address and the ipfsHash is needed on the script
-- [LongExecutor Proposal](/script/DeployQuorumLoweringProposals.s.sol): `make deploy-long-executor-proposal-<ledger|pk>`
-
-For the EcosystemReserve Payload, the proposalId of the LongExecutor is needed on the deployment script.
-- [EcosystemReserve Payload](/script/DeployEcosystemReservePayload.s.sol): `make deploy-ecosystem-reserve-payload-<ledger|pk>`
-
-To create the EcosystemReserve Proposal, the payload address and the ipfsHash is needed on the script
-- [EcosystemReserve Proposal](/script/DeployQuorumLoweringProposals.s.sol): `make deploy-ecosystem-reserve-proposal-<ledger|pk>`
+- [DeployGovLvl2Proposals](/script/DeployGovLvl2Proposals.s.sol): `make deploy-autonomous-proposal-<ledger|pk>`
 
 Use `ledger` or `pk` depending on the deployment method
 
 ### Verify
 
 The deployment scripts already try to verify the contracts against Etherscan. But the verification process can get stuck sometimes. If so try executing these commands, which will retry the verification process:
-- [LongExecutor Payload](/script/DeployLongExecutorPayload.s.sol): `make verify-long-executor-payload`
-- [EcosystemReserve Payload](/script/DeployEcosystemReservePayload.s.sol) `make verify-ecosystem-reserve-payload`
+- [DeployGovLvl2Proposals](/script/DeployGovLvl2Proposals.s.sol): `make verify-autonomous-proposal-payload`
 
 ### Copyright
 
