@@ -3,6 +3,17 @@ pragma solidity ^0.8.0;
 
 import {AaveGovernanceV2, IExecutorWithTimelock, IGovernanceStrategy} from 'aave-address-book/AaveGovernanceV2.sol';
 
+/**
+ * @title AutonomousProposalsForGovAdjustments
+ * @author BGD Labs
+ * @dev Autonomous proposal to simplify delegation, and creation of needed proposals for governance configuration adjustments.
+ * - Introduces a method that on call, will create LongExecutor proposal, and afterwards will also create the EcosystemReserve proposal
+ *   needed to use the ecosystem voting power to vote on the LongExecutor Proposal.
+ *   With this, anyone can delegate Proposition Power to this contract, and when it reaches enough power, anyone will be able to call
+ *   `createProposalsForGovAdjustments` method to create the two proposals.
+ * - `createProposalsForGovAdjustments` can only be called once, while proposals are not created. This is so proposals do not
+ *   keep being created, as the contract could maintain the proposition power, while delegators do not withdraw their delegation
+ */
 contract AutonomousProposalsForGovAdjustments {
   address public immutable LVL2_PAYLOAD;
   bytes32 public immutable LVL2_IPFS_HASH;
@@ -13,6 +24,7 @@ contract AutonomousProposalsForGovAdjustments {
   uint256 public lvl2ProposalId;
   uint256 public ecosystemReserveProposalId;
 
+  bool public proposalsCreated;
 
   constructor (address lvl2Payload, address reserveEcosystemPayload, bytes32 lvl2IpfsHash, bytes32 reserveEcosystemIpfsHash) {
     LVL2_PAYLOAD = lvl2Payload;
@@ -22,9 +34,13 @@ contract AutonomousProposalsForGovAdjustments {
   }
 
   function createProposalsForGovAdjustments() external {
+    require(proposalsCreated == false, 'PROPOSALS_ALREADY_CREATED');
+
     lvl2ProposalId = _createLvl2Proposal(LVL2_PAYLOAD, LVL2_IPFS_HASH);
 
     ecosystemReserveProposalId = _createEcosystemReserveProposal(RESERVE_ECOSYSTEM_PAYLOAD, RESERVE_ECOSYSTEM_IPFS_HASH);
+
+    proposalsCreated = true;
   }
 
   function _createLvl2Proposal(address payload, bytes32 ipfsHash) internal returns (uint256) {

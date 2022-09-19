@@ -89,6 +89,15 @@ contract AutonomousProposalsForGovAdjustmentsTest is Test {
     assertEq(ecosystemProposal.executor, GovHelpers.SHORT_EXECUTOR);
     assertEq(keccak256(abi.encode(ecosystemProposal.signatures[0])), keccak256(abi.encode('execute(uint256)')));
     assertEq(keccak256(ecosystemProposal.calldatas[0]), keccak256(abi.encode(proposalsCount - 2)));
+
+    assertEq(autonomousGovLvl2Proposal.proposalsCreated(), true);
+  }
+
+  function testCreateProposalsTwice() public {
+    _createProposals();
+
+    vm.expectRevert(bytes('PROPOSALS_ALREADY_CREATED'));
+    autonomousGovLvl2Proposal.createProposalsForGovAdjustments();
   }
 
   function testCreateProposalsWithWrongIpfsLvl2() public {
