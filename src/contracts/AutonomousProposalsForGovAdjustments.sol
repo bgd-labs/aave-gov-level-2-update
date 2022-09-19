@@ -30,6 +30,16 @@ contract AutonomousProposalsForGovAdjustments {
 
   bool public proposalsCreated;
 
+  event ProposalsCreated(
+    address executor,
+    uint256 lvl2ProposalId,
+    uint256 ecosystemReserveProposalId,
+    address lvl2Payload,
+    bytes32 lvl2IpfsHash,
+    address reserveEcosystemPayload,
+    bytes32 reserveEcosystemIpfsHash
+  );
+
   constructor (address lvl2Payload, address reserveEcosystemPayload, bytes32 lvl2IpfsHash, bytes32 reserveEcosystemIpfsHash, uint256 creationTimestamp) {
     LVL2_PAYLOAD = lvl2Payload;
     LVL2_IPFS_HASH = lvl2IpfsHash;
@@ -47,6 +57,8 @@ contract AutonomousProposalsForGovAdjustments {
     ecosystemReserveProposalId = _createEcosystemReserveProposal(RESERVE_ECOSYSTEM_PAYLOAD, RESERVE_ECOSYSTEM_IPFS_HASH);
 
     proposalsCreated = true;
+
+    emit ProposalsCreated(msg.sender, lvl2ProposalId, ecosystemReserveProposalId, LVL2_PAYLOAD, LVL2_IPFS_HASH, RESERVE_ECOSYSTEM_PAYLOAD, RESERVE_ECOSYSTEM_IPFS_HASH);
   }
 
   function _createLvl2Proposal(address payload, bytes32 ipfsHash) internal returns (uint256) {

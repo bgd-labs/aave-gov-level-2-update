@@ -35,6 +35,15 @@ contract AutonomousProposalsForGovAdjustmentsTest is Test {
   ProposalPayloadAaveEcosystemReserveWithVoting public ecosystemPayload;
   AutonomousProposalsForGovAdjustments public autonomousGovLvl2Proposal;
 
+  event ProposalsCreated(
+    address executor,
+    uint256 lvl2ProposalId,
+    uint256 ecosystemReserveProposalId,
+    address lvl2Payload,
+    bytes32 lvl2IpfsHash,
+    address reserveEcosystemPayload,
+    bytes32 reserveEcosystemIpfsHash
+  );
 
   function setUp() public {
     vm.createSelectFork(vm.rpcUrl("ethereum"), 15370248);
@@ -72,7 +81,23 @@ contract AutonomousProposalsForGovAdjustmentsTest is Test {
   }
 
   function testCreateProposalsWhenAllInfoCorrect() public {
-    _createProposals();
+
+    hoax(GovHelpers.AAVE_WHALE);
+    IGovernancePowerDelegationToken(GovHelpers.AAVE).delegateByType(address(autonomousGovLvl2Proposal), IGovernancePowerDelegationToken.DelegationType.PROPOSITION_POWER);
+
+    vm.roll(block.number + 10);
+
+    vm.expectEmit(false, false, false, true);
+    emit ProposalsCreated(
+      address(this),
+      beforeProposalCount,
+      beforeProposalCount + 1,
+      address(lvl2Payload),
+      LVL2_IPFS_HASH,
+      address(ecosystemPayload),
+      RESERVE_ECOSYSTEM_IPFS_HASH
+    );
+    autonomousGovLvl2Proposal.createProposalsForGovAdjustments();
 
     // test that first proposal is lvl2 and second is ecosystem
     uint256 proposalsCount = GovHelpers.GOV.getProposalsCount();
@@ -97,7 +122,12 @@ contract AutonomousProposalsForGovAdjustmentsTest is Test {
   }
 
   function testCreateProposalsTwice() public {
-    _createProposals();
+    hoax(GovHelpers.AAVE_WHALE);
+    IGovernancePowerDelegationToken(GovHelpers.AAVE).delegateByType(address(autonomousGovLvl2Proposal), IGovernancePowerDelegationToken.DelegationType.PROPOSITION_POWER);
+
+    vm.roll(block.number + 10);
+
+    autonomousGovLvl2Proposal.createProposalsForGovAdjustments();
 
     vm.expectRevert(bytes('PROPOSALS_ALREADY_CREATED'));
     autonomousGovLvl2Proposal.createProposalsForGovAdjustments();
@@ -161,7 +191,12 @@ contract AutonomousProposalsForGovAdjustmentsTest is Test {
   }
 
   function testVotingAndExecution() public {
-    _createProposals();
+    hoax(GovHelpers.AAVE_WHALE);
+    IGovernancePowerDelegationToken(GovHelpers.AAVE).delegateByType(address(autonomousGovLvl2Proposal), IGovernancePowerDelegationToken.DelegationType.PROPOSITION_POWER);
+
+    vm.roll(block.number + 10);
+
+    autonomousGovLvl2Proposal.createProposalsForGovAdjustments();
 
     // vote on ecosystem proposal
     uint256 proposalsCount = GovHelpers.GOV.getProposalsCount();
@@ -171,14 +206,5 @@ contract AutonomousProposalsForGovAdjustmentsTest is Test {
     IAaveGov.ProposalWithoutVotes memory lvl2Proposal = GovHelpers.getProposalById(proposalsCount - 2);
     uint256 votingPower = AAVE_TOKEN.balanceOf(address(ecosystemPayload.AAVE_ECOSYSTEM_RESERVE_PROXY()));
     assertEq(lvl2Proposal.forVotes, votingPower);
-  }
-
-  function _createProposals() internal {
-    hoax(GovHelpers.AAVE_WHALE);
-    IGovernancePowerDelegationToken(GovHelpers.AAVE).delegateByType(address(autonomousGovLvl2Proposal), IGovernancePowerDelegationToken.DelegationType.PROPOSITION_POWER);
-
-    vm.roll(block.number + 10);
-
-    autonomousGovLvl2Proposal.createProposalsForGovAdjustments();
   }
 }
