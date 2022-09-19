@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import 'forge-std/Test.sol';
+import { IERC20 } from "./utils/IERC20.sol";
 import {GovHelpers, IAaveGov} from 'aave-helpers/GovHelpers.sol';
 import { AaveEcosystemReserveV2 } from "src/contracts/AaveEcosystemReserveV2.sol";
 import { Executor } from "src/contracts/Executor.sol";
@@ -11,6 +12,9 @@ import {AutonomousProposalsForGovAdjustments} from "src/contracts/AutonomousProp
 import {IGovernancePowerDelegationToken} from './utils/IGovernancePowerDelegationToken.sol';
 
 contract AutonomousProposalsForGovAdjustmentsTest is Test {
+  IERC20 constant AAVE_TOKEN =
+    IERC20(0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9);
+
   bytes32 public constant LVL2_IPFS_HASH = keccak256('lvl2 ifps hash');
   bytes32 public constant RESERVE_ECOSYSTEM_IPFS_HASH = keccak256('ecosystem ifps hash');
 
@@ -87,22 +91,62 @@ contract AutonomousProposalsForGovAdjustmentsTest is Test {
     assertEq(keccak256(ecosystemProposal.calldatas[0]), keccak256(abi.encode(proposalsCount - 2)));
   }
 
-  function testCreateProposalsWithWrongIpfsLvl2() public {}
+  function testCreateProposalsWithWrongIpfsLvl2() public {
+    AutonomousProposalsForGovAdjustments autonomous = new AutonomousProposalsForGovAdjustments(address(lvl2Payload), address(ecosystemPayload), bytes32(0), RESERVE_ECOSYSTEM_IPFS_HASH);
 
-  function testCreateProposalsWithWrongPayloadLvl2() public {}
+    vm.expectRevert(bytes('IPFS_HASH_BYTES32_0'));
+    autonomous.createProposalsForGovAdjustments();
+  }
 
-  function testCreateProposalsWithWrongIpfsEcosystem() public {}
+  function testCreateProposalsWithWrongPayloadLvl2() public {
+    AutonomousProposalsForGovAdjustments autonomous = new AutonomousProposalsForGovAdjustments(address(0), address(ecosystemPayload), LVL2_IPFS_HASH, RESERVE_ECOSYSTEM_IPFS_HASH);
 
-  function testCreateProposalsWithWrongPayloadEcosystem() public {}
+    vm.expectRevert(bytes('PAYLOAD_ADDRESS_0'));
+    autonomous.createProposalsForGovAdjustments();
+  }
 
-  function testCreateProposalsWithoutPropositionPower() public {}
+  function testCreateProposalsWithWrongIpfsEcosystem() public {
+    AutonomousProposalsForGovAdjustments autonomous = new AutonomousProposalsForGovAdjustments(address(lvl2Payload), address(ecosystemPayload), LVL2_IPFS_HASH, bytes32(0));
+
+    hoax(GovHelpers.AAVE_WHALE);
+    IGovernancePowerDelegationToken(GovHelpers.AAVE).delegateByType(address(autonomous), IGovernancePowerDelegationToken.DelegationType.PROPOSITION_POWER);
+
+    vm.roll(block.number + 10);
+
+    vm.expectRevert(bytes('IPFS_HASH_BYTES32_0'));
+    autonomous.createProposalsForGovAdjustments();
+  }
+
+  function testCreateProposalsWithWrongPayloadEcosystem() public {
+    AutonomousProposalsForGovAdjustments autonomous = new AutonomousProposalsForGovAdjustments(address(lvl2Payload), address(0), LVL2_IPFS_HASH, RESERVE_ECOSYSTEM_IPFS_HASH);
+
+    hoax(GovHelpers.AAVE_WHALE);
+    IGovernancePowerDelegationToken(GovHelpers.AAVE).delegateByType(address(autonomous), IGovernancePowerDelegationToken.DelegationType.PROPOSITION_POWER);
+
+    vm.roll(block.number + 10);
+
+    vm.expectRevert(bytes('PAYLOAD_ADDRESS_0'));
+    autonomous.createProposalsForGovAdjustments();
+  }
+
+  function testCreateProposalsWithoutPropositionPower() public {
+    AutonomousProposalsForGovAdjustments autonomous = new AutonomousProposalsForGovAdjustments(address(lvl2Payload), address(ecosystemPayload), LVL2_IPFS_HASH, RESERVE_ECOSYSTEM_IPFS_HASH);
+
+    vm.expectRevert((bytes('PROPOSITION_CREATION_INVALID')));
+    autonomous.createProposalsForGovAdjustments();
+  }
 
   function testVotingAndExecution() public {
     _createProposals();
 
-    // test that first proposal is lvl2 and second is ecosystem
+    // vote on ecosystem proposal
     uint256 proposalsCount = GovHelpers.GOV.getProposalsCount();
 
+    GovHelpers.passVoteAndExecute(vm, proposalsCount - 1);
+
+    IAaveGov.ProposalWithoutVotes memory lvl2Proposal = GovHelpers.getProposalById(proposalsCount - 2);
+    uint256 votingPower = AAVE_TOKEN.balanceOf(address(ecosystemPayload.AAVE_ECOSYSTEM_RESERVE_PROXY()));
+    assertEq(lvl2Proposal.forVotes, votingPower);
   }
 
   function _createProposals() internal {
