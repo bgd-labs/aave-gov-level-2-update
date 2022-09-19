@@ -117,8 +117,6 @@ contract AutonomousProposalsForGovAdjustmentsTest is Test {
     assertEq(ecosystemProposal.executor, GovHelpers.SHORT_EXECUTOR);
     assertEq(keccak256(abi.encode(ecosystemProposal.signatures[0])), keccak256(abi.encode('execute(uint256)')));
     assertEq(keccak256(ecosystemProposal.calldatas[0]), keccak256(abi.encode(proposalsCount - 2)));
-
-    assertEq(autonomousGovLvl2Proposal.proposalsCreated(), true);
   }
 
   function testCreateProposalsTwice() public {
@@ -134,45 +132,29 @@ contract AutonomousProposalsForGovAdjustmentsTest is Test {
   }
 
   function testCreateProposalsWithWrongIpfsLvl2() public {
-    AutonomousProposalsForGovAdjustments autonomous = new AutonomousProposalsForGovAdjustments(address(lvl2Payload), address(ecosystemPayload), bytes32(0), RESERVE_ECOSYSTEM_IPFS_HASH, block.timestamp + 10);
-    skip(11);
+    vm.expectRevert(bytes('LVL2_IPFS_HASH_BYTES32_0'));
+    new AutonomousProposalsForGovAdjustments(address(lvl2Payload), address(ecosystemPayload), bytes32(0), RESERVE_ECOSYSTEM_IPFS_HASH, block.timestamp + 10);
 
-    vm.expectRevert(bytes('IPFS_HASH_BYTES32_0'));
-    autonomous.createProposalsForGovAdjustments();
   }
 
   function testCreateProposalsWithWrongPayloadLvl2() public {
-    AutonomousProposalsForGovAdjustments autonomous = new AutonomousProposalsForGovAdjustments(address(0), address(ecosystemPayload), LVL2_IPFS_HASH, RESERVE_ECOSYSTEM_IPFS_HASH, block.timestamp + 10);
-    skip(11);
-
-    vm.expectRevert(bytes('PAYLOAD_ADDRESS_0'));
-    autonomous.createProposalsForGovAdjustments();
+    vm.expectRevert(bytes('LVL2_PAYLOAD_ADDRESS_0'));
+    new AutonomousProposalsForGovAdjustments(address(0), address(ecosystemPayload), LVL2_IPFS_HASH, RESERVE_ECOSYSTEM_IPFS_HASH, block.timestamp + 10);
   }
 
   function testCreateProposalsWithWrongIpfsEcosystem() public {
-    AutonomousProposalsForGovAdjustments autonomous = new AutonomousProposalsForGovAdjustments(address(lvl2Payload), address(ecosystemPayload), LVL2_IPFS_HASH, bytes32(0), block.timestamp + 10);
-    skip(11);
-
-    hoax(GovHelpers.AAVE_WHALE);
-    IGovernancePowerDelegationToken(GovHelpers.AAVE).delegateByType(address(autonomous), IGovernancePowerDelegationToken.DelegationType.PROPOSITION_POWER);
-
-    vm.roll(block.number + 10);
-
-    vm.expectRevert(bytes('IPFS_HASH_BYTES32_0'));
-    autonomous.createProposalsForGovAdjustments();
+    vm.expectRevert(bytes('ECOSYSTEM_RESERVE_IPFS_HASH_BYTES32_0'));
+    new AutonomousProposalsForGovAdjustments(address(lvl2Payload), address(ecosystemPayload), LVL2_IPFS_HASH, bytes32(0), block.timestamp + 10);
   }
 
   function testCreateProposalsWithWrongPayloadEcosystem() public {
-    AutonomousProposalsForGovAdjustments autonomous = new AutonomousProposalsForGovAdjustments(address(lvl2Payload), address(0), LVL2_IPFS_HASH, RESERVE_ECOSYSTEM_IPFS_HASH, block.timestamp + 10);
-    skip(11);
+    vm.expectRevert(bytes('ECOSYSTEM_RESERVE_PAYLOAD_ADDRESS_0'));
+    new AutonomousProposalsForGovAdjustments(address(lvl2Payload), address(0), LVL2_IPFS_HASH, RESERVE_ECOSYSTEM_IPFS_HASH, block.timestamp + 10);
+  }
 
-    hoax(GovHelpers.AAVE_WHALE);
-    IGovernancePowerDelegationToken(GovHelpers.AAVE).delegateByType(address(autonomous), IGovernancePowerDelegationToken.DelegationType.PROPOSITION_POWER);
-
-    vm.roll(block.number + 10);
-
-    vm.expectRevert(bytes('PAYLOAD_ADDRESS_0'));
-    autonomous.createProposalsForGovAdjustments();
+  function testCreateProposalsWithWrongTimestamp() public {
+    vm.expectRevert(bytes('CREATION_TIMESTAMP_TO_EARLY'));
+    new AutonomousProposalsForGovAdjustments(address(lvl2Payload), address(ecosystemPayload), LVL2_IPFS_HASH, RESERVE_ECOSYSTEM_IPFS_HASH, 0);
   }
 
   function testCreateProposalsWithoutPropositionPower() public {
