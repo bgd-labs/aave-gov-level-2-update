@@ -23,7 +23,7 @@ contract DeployGovLvl2Proposals is Script {
   uint256 public constant VOTE_DIFFERENTIAL = 650; // 6.5% - proposal change
   uint256 public constant MINIMUM_QUORUM = 650; // 6.5% - proposal change
 
-  uint256 public constant CREATION_TIMESTAMP = 1664358465; // Wednesday, September 28, 2022 9:47:45 AM // TODO: add correct date
+  uint256 public constant CREATION_TIMESTAMP = 1664892000; // Tuesday, October 4, 2022 2:00:00 PM
 
   function run() public {
     vm.startBroadcast();
