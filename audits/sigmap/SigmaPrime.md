@@ -1,6 +1,42 @@
 # Aave Governance Long Executor Migration Review
 
-## INFORMATIONAL: `isProposalOverGracePeriod()` Will Return `true` If The Proposal Does Not Exist Or Is Not Yet Queued
+## Introduction
+
+Sigma Prime was commercially engaged to perform a time-boxed security review of the Aave Governance v2 Upgrade, as part of the [Master Services Agreement](https://governance.aave.com/t/sigma-prime-security-assessment-services-for-aave/8518) established between Sigma Prime and the Aave DAO.
+The review focused on the security aspects of the Solidity smart contracts, along with the relevant migration processes.
+
+### Disclaimer
+
+Sigma Prime makes all effort but holds no responsibility for the findings of this security review. Sigma Prime does
+not provide any guarantees relating to the function of the smart contract. Sigma Prime makes no judgements
+on, or provides any security review, regarding the underlying business model or the individuals involved in the
+project.
+
+### Overview
+
+This review covers adjustments made to the long-executor associated with the `AaveGovernanceV2` contract.
+Configuration parameters to the long-executor are being modified to allow for lower voter participation.
+
+To fulfil these changes, a new `Executor.sol` contract must be deployed.
+A small number of changes have been introduced before redeploying the contract.
+There is a reduction in inheritance by combining multiple contracts into a single contract and the Solidity version has been bumped to `^0.8.8` from `0.7.5`.
+
+A detailed description of the RFC can be found [here](https://governance.aave.com/t/rfc-aave-governance-adjust-level-2-requirements-long-executor/8693).
+
+### Scope
+
+The scope of the audit covers the following components:
+* Updates to the `Executor.sol` contract,
+* The two proposal helper contracts `ProposalPayloadAaveEcosystemReserveWithVoting.sol` and `ProposalPayloadNewLongExecutor.sol`,
+* A review of the adjusted config values, and
+* The migration process including a review of the methodologies to find all ownership occurrences of the previous long-executor.
+
+### Summary of Findings
+
+Two informational findings and two miscellaneous findings were found during the review posing negligible security risks.
+
+
+## 1. INFORMATIONAL: `isProposalOverGracePeriod()` Will Return `true` If The Proposal Does Not Exist Or Is Not Yet Queued
 
 `Executor.isProposalOverGracePeriod()` will return `true` if there is no proposal in the governance contract.
 
@@ -42,7 +78,7 @@ This point will not be addressed, as it is out of bounds for this proposal.
 This issue will not be fixed by the development team due to the insignificant impact and to minimise the scope of the changes.
 
 
-## INFORMATIONAL: Insufficient Bounds Checks On `_updatePropositionThreshold()`, `_updateMinimumQuorum()`, `_updateVoteDifferential()`, `_updateVotingDuration()`
+## 2. INFORMATIONAL: Insufficient Bounds Checks On `_updatePropositionThreshold()`, `_updateMinimumQuorum()`, `_updateVoteDifferential()`, `_updateVotingDuration()`
 
 The functions `_updatePropositionThreshold()`, `_updateMinimumQuorum()`, `_updateVoteDifferential()` are setters for percentage values.
 The percentages should be strictly less than 10,000 (100%).
@@ -81,7 +117,7 @@ Additionally, zero checks have been added to `GRACE_PERIOD` in the constructor t
 
 ## Miscellaneous
 
-### Clarify in natspec whether durations and delays are in blocks vs timestamp.
+### M1. Clarify in natspec whether durations and delays are in blocks vs timestamp.
 
 One example in `Executor.sol` is that `delay` is a timestamp whereas `VOTING_DURATION` is in blocks.
 
@@ -104,7 +140,7 @@ Natspec will be updated to clearly indicate if variable indicates time in second
 The Natspec comments have been updated to include the units for each variable in commit [ae15802](https://github.com/bgd-labs/aave-gov-level-2-update/commit/ae158023ccfe22c9abbcb8eb380ca9e1c1796099).
 
 
-### Identical proposals queued in the same block will overwrite each other in the executor.
+### M2. Identical proposals queued in the same block will overwrite each other in the executor.
 
 The function `queueTransaction()` (`cancelTransaction()` and `executeTransaction()`) do not hash `proposalId` into the action hash.
 
