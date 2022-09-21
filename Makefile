@@ -1,3 +1,5 @@
+-include .env
+
 build :; forge build --sizes
 
 test :; forge test -vvv
