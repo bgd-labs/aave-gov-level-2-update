@@ -1,10 +1,10 @@
-diff generated with contract downloaded from etherscan at: Thu Aug 18 03:49:41 PM CEST 2022
+diff generated with contract downloaded from etherscan at: Wed Sep 21 12:27:08 PM CEST 2022
 
 ```diff --git a/./etherscan/Executor/Executor.sol b/./src/contracts/Executor.sol
-index 01c891e..6b4266b 100644
+index 01c891e..a36db1c 100644
 --- a/./etherscan/Executor/Executor.sol
 +++ b/./src/contracts/Executor.sol
-@@ -1,682 +1,66 @@
+@@ -1,752 +1,134 @@
 -// SPDX-License-Identifier: agpl-3.0
 -pragma solidity 0.7.5;
 -pragma abicoder v2;
@@ -729,7 +729,13 @@ index 01c891e..6b4266b 100644
      require(delay >= minimumDelay, 'DELAY_SHORTER_THAN_MINIMUM');
      require(delay <= maximumDelay, 'DELAY_LONGER_THAN_MAXIMUM');
      _delay = delay;
-@@ -688,65 +72,61 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
+     _admin = admin;
+ 
++    require(gracePeriod > 0, 'GRACE_PERIOD_LESS_THAN_0');
+     GRACE_PERIOD = gracePeriod;
++
+     MINIMUM_DELAY = minimumDelay;
+     MAXIMUM_DELAY = maximumDelay;
  
      emit NewDelay(delay);
      emit NewAdmin(admin);
@@ -820,7 +826,7 @@ index 01c891e..6b4266b 100644
    function queueTransaction(
      address target,
      uint256 value,
-@@ -754,8 +134,8 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
+@@ -754,8 +136,8 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
      bytes memory data,
      uint256 executionTime,
      bool withDelegatecall
@@ -831,7 +837,7 @@ index 01c891e..6b4266b 100644
  
      bytes32 actionHash = keccak256(
        abi.encode(target, value, signature, data, executionTime, withDelegatecall)
-@@ -766,16 +146,7 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
+@@ -766,16 +148,7 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
      return actionHash;
    }
  
@@ -849,7 +855,7 @@ index 01c891e..6b4266b 100644
    function cancelTransaction(
      address target,
      uint256 value,
-@@ -783,7 +154,7 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
+@@ -783,7 +156,7 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
      bytes memory data,
      uint256 executionTime,
      bool withDelegatecall
@@ -858,7 +864,7 @@ index 01c891e..6b4266b 100644
      bytes32 actionHash = keccak256(
        abi.encode(target, value, signature, data, executionTime, withDelegatecall)
      );
-@@ -801,16 +172,7 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
+@@ -801,16 +174,7 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
      return actionHash;
    }
  
@@ -876,7 +882,7 @@ index 01c891e..6b4266b 100644
    function executeTransaction(
      address target,
      uint256 value,
-@@ -818,13 +180,13 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
+@@ -818,13 +182,13 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
      bytes memory data,
      uint256 executionTime,
      bool withDelegatecall
@@ -892,7 +898,7 @@ index 01c891e..6b4266b 100644
  
      _queuedTransactions[actionHash] = false;
  
-@@ -863,273 +225,92 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
+@@ -863,273 +227,92 @@ contract ExecutorWithTimelock is IExecutorWithTimelock {
      return resultData;
    }
  
@@ -1015,8 +1021,8 @@ index 01c891e..6b4266b 100644
 -    external
 -    view
 -    returns (uint256);
- 
-   /**
+-
+-  /**
 -   * @dev Returns whether a proposal passed or not
 -   * @param governance Governance Contract
 -   * @param proposalId Id of the proposal to set
@@ -1026,14 +1032,7 @@ index 01c891e..6b4266b 100644
 -    external
 -    view
 -    returns (bool);
-+  * --------------------------------------------------------
-+  * ---------- Proposal Validation -------------------------
-+  * @dev Validates/Invalidations propositions state modifications.
-+  * Proposition Power functions: Validates proposition creations/ cancellation
-+  * Voting Power functions: Validates success of propositions.
-+  * --------------------------------------------------------
-+  */
- 
+-
 -  /**
 -   * @dev Check whether a proposal has reached quorum, ie has enough FOR-voting-power
 -   * Here quorum is not to understand as number of votes reached, but number of for-votes reached
@@ -1083,14 +1082,21 @@ index 01c891e..6b4266b 100644
 -   * @return the vote differential threshold value (100 <=> 1%)
 -   **/
 -  function VOTE_DIFFERENTIAL() external view returns (uint256);
--
--  /**
+ 
+   /**
 -   * @dev Get quorum threshold constant value
 -   * to compare with % of for votes/total supply
 -   * @return the quorum threshold value (100 <=> 1%)
 -   **/
 -  function MINIMUM_QUORUM() external view returns (uint256);
--
++  * --------------------------------------------------------
++  * ---------- Proposal Validation -------------------------
++  * @dev Validates/Invalidations propositions state modifications.
++  * Proposition Power functions: Validates proposition creations/ cancellation
++  * Voting Power functions: Validates success of propositions.
++  * --------------------------------------------------------
++  */
+ 
 -  /**
 -   * @dev precision helper: 100% = 10000
 -   * @return one hundred percents with our chosen precision
@@ -1204,7 +1210,7 @@ index 01c891e..6b4266b 100644
      IGovernanceStrategy currentGovernanceStrategy = IGovernanceStrategy(
        governance.getGovernanceStrategy()
      );
-@@ -1138,16 +319,10 @@ contract ProposalValidator is IProposalValidator {
+@@ -1138,16 +321,10 @@ contract ProposalValidator is IProposalValidator {
        getMinimumPropositionPowerNeeded(governance, blockNumber);
    }
  
@@ -1222,7 +1228,7 @@ index 01c891e..6b4266b 100644
      returns (uint256)
    {
      IGovernanceStrategy currentGovernanceStrategy = IGovernanceStrategy(
-@@ -1156,51 +331,33 @@ contract ProposalValidator is IProposalValidator {
+@@ -1156,51 +333,33 @@ contract ProposalValidator is IProposalValidator {
      return
        currentGovernanceStrategy
          .getTotalPropositionSupplyAt(blockNumber)
@@ -1280,7 +1286,7 @@ index 01c891e..6b4266b 100644
      returns (bool)
    {
      IAaveGovernanceV2.ProposalWithoutVotes memory proposal = governance.getProposalById(proposalId);
-@@ -1211,17 +368,10 @@ contract ProposalValidator is IProposalValidator {
+@@ -1211,17 +370,10 @@ contract ProposalValidator is IProposalValidator {
      return proposal.forVotes >= getMinimumVotingPowerNeeded(votingSupply);
    }
  
@@ -1299,7 +1305,7 @@ index 01c891e..6b4266b 100644
      returns (bool)
    {
      IAaveGovernanceV2.ProposalWithoutVotes memory proposal = governance.getProposalById(proposalId);
-@@ -1229,34 +379,42 @@ contract ProposalValidator is IProposalValidator {
+@@ -1229,34 +381,45 @@ contract ProposalValidator is IProposalValidator {
        proposal.startBlock
      );
  
@@ -1346,6 +1352,7 @@ index 01c891e..6b4266b 100644
 +  /// updates vote differential
 +  function _updateVoteDifferential(uint256 voteDifferential) internal {
 +    require(voteDifferential <= ONE_HUNDRED_WITH_PRECISION, 'VOTE_DIFFERENTIAL_CAN_NOT_BE_GREATER_THAN_100%');
++    require(voteDifferential > 0, 'VOTE_DIFFERENTIAL_CAN_NOT_BE_LESS_THAN_0');
 +    VOTE_DIFFERENTIAL = voteDifferential;
 +    emit VoteDifferentialUpdated(voteDifferential);
 +  }
@@ -1353,6 +1360,7 @@ index 01c891e..6b4266b 100644
 +  /// updates minimum quorum
 +  function _updateMinimumQuorum(uint256 minimumQuorum) internal {
 +    require(minimumQuorum <= ONE_HUNDRED_WITH_PRECISION, 'MINIMUM_QUORUM_CAN_NOT_BE_GREATER_THAN_100%');
++    require(minimumQuorum > 0, 'MINIMUM_QUORUM_CAN_NOT_BE_LESS_THAN_0');
 +    MINIMUM_QUORUM = minimumQuorum;
 +    emit MinimumQuorumUpdated(minimumQuorum);
 +  }
@@ -1360,6 +1368,7 @@ index 01c891e..6b4266b 100644
 +  /// updates proposition threshold
 +  function _updatePropositionThreshold(uint256 propositionThreshold) internal {
 +    require(propositionThreshold <= ONE_HUNDRED_WITH_PRECISION, 'PROPOSITION_THRESHOLD_CAN_NOT_BE_GREATER_THAN_100%');
++    require(propositionThreshold > 0, 'PROPOSITION_THRESHOLD_CAN_NOT_BE_LESS_THAN_0');
 +    PROPOSITION_THRESHOLD = propositionThreshold;
 +    emit PropositionThresholdUpdated(propositionThreshold);
 +  }
