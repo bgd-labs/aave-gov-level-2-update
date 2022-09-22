@@ -172,6 +172,71 @@ contract AutonomousProposalsForGovAdjustmentsTest is Test {
     autonomous.createProposalsForGovAdjustments();
   }
 
+  function testVoteLvl2ProposalYes() public {
+    hoax(GovHelpers.AAVE_WHALE);
+    IGovernancePowerDelegationToken(GovHelpers.AAVE).delegateByType(address(autonomousGovLvl2Proposal), IGovernancePowerDelegationToken.DelegationType.PROPOSITION_POWER);
+    vm.roll(block.number + 10);
+    autonomousGovLvl2Proposal.createProposalsForGovAdjustments();
+
+    _delegateVotingPower();
+    autonomousGovLvl2Proposal.voteOnLvl2GovAdjustmentsProposal(true);
+
+
+    uint256 proposalsCount = GovHelpers.GOV.getProposalsCount();
+    IAaveGov.ProposalWithoutVotes memory lvl2Proposal = GovHelpers.getProposalById(proposalsCount - 2);
+    uint256 currentPower = IGovernancePowerDelegationToken(GovHelpers.AAVE).getPowerCurrent(address(autonomousGovLvl2Proposal), IGovernancePowerDelegationToken.DelegationType.VOTING_POWER);
+    assertEq(lvl2Proposal.forVotes, currentPower);
+  }
+
+  function testVoteEcosystemReserveProposalYes() public {
+    hoax(GovHelpers.AAVE_WHALE);
+    IGovernancePowerDelegationToken(GovHelpers.AAVE).delegateByType(address(autonomousGovLvl2Proposal), IGovernancePowerDelegationToken.DelegationType.PROPOSITION_POWER);
+    vm.roll(block.number + 10);
+    autonomousGovLvl2Proposal.createProposalsForGovAdjustments();
+
+
+    _delegateVotingPower();
+    autonomousGovLvl2Proposal.voteOnEcosystemReserveProposal(true);
+
+    uint256 proposalsCount = GovHelpers.GOV.getProposalsCount();
+    IAaveGov.ProposalWithoutVotes memory lvl2Proposal = GovHelpers.getProposalById(proposalsCount - 1);
+    uint256 currentPower = IGovernancePowerDelegationToken(GovHelpers.AAVE).getPowerCurrent(address(autonomousGovLvl2Proposal), IGovernancePowerDelegationToken.DelegationType.VOTING_POWER);
+    assertEq(lvl2Proposal.forVotes, currentPower);
+  }
+
+  function testVoteLvl2ProposalNo() public {
+    hoax(GovHelpers.AAVE_WHALE);
+    IGovernancePowerDelegationToken(GovHelpers.AAVE).delegateByType(address(autonomousGovLvl2Proposal), IGovernancePowerDelegationToken.DelegationType.PROPOSITION_POWER);
+    vm.roll(block.number + 10);
+    autonomousGovLvl2Proposal.createProposalsForGovAdjustments();
+
+    _delegateVotingPower();
+    autonomousGovLvl2Proposal.voteOnLvl2GovAdjustmentsProposal(false);
+
+
+    uint256 proposalsCount = GovHelpers.GOV.getProposalsCount();
+    IAaveGov.ProposalWithoutVotes memory lvl2Proposal = GovHelpers.getProposalById(proposalsCount - 2);
+    uint256 currentPower = IGovernancePowerDelegationToken(GovHelpers.AAVE).getPowerCurrent(address(autonomousGovLvl2Proposal), IGovernancePowerDelegationToken.DelegationType.VOTING_POWER);
+    assertEq(lvl2Proposal.againstVotes, currentPower);
+  }
+
+  function testVoteEcosystemReserveProposalNo() public {
+    hoax(GovHelpers.AAVE_WHALE);
+    IGovernancePowerDelegationToken(GovHelpers.AAVE).delegateByType(address(autonomousGovLvl2Proposal), IGovernancePowerDelegationToken.DelegationType.PROPOSITION_POWER);
+    vm.roll(block.number + 10);
+    autonomousGovLvl2Proposal.createProposalsForGovAdjustments();
+
+
+    _delegateVotingPower();
+    autonomousGovLvl2Proposal.voteOnEcosystemReserveProposal(false);
+
+    uint256 proposalsCount = GovHelpers.GOV.getProposalsCount();
+    IAaveGov.ProposalWithoutVotes memory lvl2Proposal = GovHelpers.getProposalById(proposalsCount - 1);
+    uint256 currentPower = IGovernancePowerDelegationToken(GovHelpers.AAVE).getPowerCurrent(address(autonomousGovLvl2Proposal), IGovernancePowerDelegationToken.DelegationType.VOTING_POWER);
+    assertEq(lvl2Proposal.againstVotes, currentPower);
+  }
+
+
   function testVotingAndExecution() public {
     hoax(GovHelpers.AAVE_WHALE);
     IGovernancePowerDelegationToken(GovHelpers.AAVE).delegateByType(address(autonomousGovLvl2Proposal), IGovernancePowerDelegationToken.DelegationType.PROPOSITION_POWER);
@@ -189,4 +254,11 @@ contract AutonomousProposalsForGovAdjustmentsTest is Test {
     uint256 votingPower = AAVE_TOKEN.balanceOf(address(ecosystemPayload.AAVE_ECOSYSTEM_RESERVE_PROXY()));
     assertEq(lvl2Proposal.forVotes, votingPower);
   }
+
+  function _delegateVotingPower() internal {
+    hoax(GovHelpers.AAVE_WHALE);
+    IGovernancePowerDelegationToken(GovHelpers.AAVE).delegateByType(address(autonomousGovLvl2Proposal), IGovernancePowerDelegationToken.DelegationType.VOTING_POWER);
+    vm.roll(block.number + 10);
+  }
+
 }
