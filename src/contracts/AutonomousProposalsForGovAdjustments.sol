@@ -55,6 +55,7 @@ contract AutonomousProposalsForGovAdjustments {
     CREATION_TIMESTAMP = creationTimestamp;
   }
 
+  /// @dev creates the necessary proposals for the governance parameter adjustments
   function createProposalsForGovAdjustments() external {
     require(newLongExecutorProposalId == 0 && ecosystemReserveProposalId == 0, 'PROPOSALS_ALREADY_CREATED');
     require(block.timestamp > CREATION_TIMESTAMP, 'CREATION_TIMESTAMP_NOT_YET_REACHED');
@@ -65,6 +66,15 @@ contract AutonomousProposalsForGovAdjustments {
 
     emit ProposalsCreated(msg.sender, newLongExecutorProposalId, ecosystemReserveProposalId, NEW_LONG_EXECUTOR_PAYLOAD, LVL2_IPFS_HASH, ECOSYSTEM_RESERVE_WITH_VOTING_PAYLOAD, RESERVE_ECOSYSTEM_IPFS_HASH);
   }
+
+
+  /// @dev method to vote on the governance parameters adjustment proposals, in case there is some
+  /// voting power delegation by error
+  function voteOnGovAdjustmentsProposal() external {
+    AaveGovernanceV2.GOV.submitVote(newLongExecutorProposalId, true);
+    AaveGovernanceV2.GOV.submitVote(ecosystemReserveProposalId, true);
+  }
+
 
   function _createLvl2Proposal(address payload, bytes32 ipfsHash) internal returns (uint256) {
     address[] memory targets = new address[](1);

@@ -172,6 +172,22 @@ contract AutonomousProposalsForGovAdjustmentsTest is Test {
     autonomous.createProposalsForGovAdjustments();
   }
 
+  function testVoteOnGovAdjustmentsProposal() public {
+    _createProposals();
+
+    _delegateVotingPower();
+    autonomousGovLvl2Proposal.voteOnGovAdjustmentsProposal();
+
+    uint256 proposalsCount = GovHelpers.GOV.getProposalsCount();
+    uint256 currentPower = IGovernancePowerDelegationToken(GovHelpers.AAVE).getPowerCurrent(address(autonomousGovLvl2Proposal), IGovernancePowerDelegationToken.DelegationType.VOTING_POWER);
+    IAaveGov.ProposalWithoutVotes memory ecosystemProposal = GovHelpers.getProposalById(proposalsCount - 1);
+    assertEq(ecosystemProposal.forVotes, currentPower);
+
+    IAaveGov.ProposalWithoutVotes memory lvl2Proposal = GovHelpers.getProposalById(proposalsCount - 2);
+    assertEq(lvl2Proposal.forVotes, currentPower);
+  }
+
+
   function testVotingAndExecution() public {
     hoax(GovHelpers.AAVE_WHALE);
     IGovernancePowerDelegationToken(GovHelpers.AAVE).delegateByType(address(autonomousGovLvl2Proposal), IGovernancePowerDelegationToken.DelegationType.PROPOSITION_POWER);
@@ -189,4 +205,18 @@ contract AutonomousProposalsForGovAdjustmentsTest is Test {
     uint256 votingPower = AAVE_TOKEN.balanceOf(address(ecosystemPayload.AAVE_ECOSYSTEM_RESERVE_PROXY()));
     assertEq(lvl2Proposal.forVotes, votingPower);
   }
+
+  function _createProposals() internal {
+    hoax(GovHelpers.AAVE_WHALE);
+    IGovernancePowerDelegationToken(GovHelpers.AAVE).delegateByType(address(autonomousGovLvl2Proposal), IGovernancePowerDelegationToken.DelegationType.PROPOSITION_POWER);
+    vm.roll(block.number + 10);
+    autonomousGovLvl2Proposal.createProposalsForGovAdjustments();
+  }
+
+  function _delegateVotingPower() internal {
+    hoax(GovHelpers.AAVE_WHALE);
+    IGovernancePowerDelegationToken(GovHelpers.AAVE).delegateByType(address(autonomousGovLvl2Proposal), IGovernancePowerDelegationToken.DelegationType.VOTING_POWER);
+    vm.roll(block.number + 10);
+  }
+
 }
