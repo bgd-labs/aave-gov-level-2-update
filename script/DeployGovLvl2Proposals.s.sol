@@ -9,8 +9,8 @@ import { ProposalPayloadAaveEcosystemReserveWithVoting } from "src/contracts/Pro
 import {AutonomousProposalsForGovAdjustments} from "src/contracts/AutonomousProposalsForGovAdjustments.sol";
 
 contract DeployGovLvl2Proposals is Script {
-  bytes32 public constant LVL2_IPFS_HASH = bytes32(0); // TODO: add correct hash
-  bytes32 public constant RESERVE_ECOSYSTEM_IPFS_HASH = bytes32(0); // TODO: add correct hash
+  bytes32 public constant LVL2_IPFS_HASH = 0x4bd95ce6e9a0d76c0dd3154da423f01ee010ea9491bb5ddf5a151e6ef22b674c;
+  bytes32 public constant RESERVE_ECOSYSTEM_IPFS_HASH = 0x9c4249b03cdf9c2721b8b69d82a51bac19f35f4adbd09f194cc7d0cc449141d2;
 
   // executor lvl2 parameters
   address public constant ADMIN = 0xEC568fffba86c094cf06b22134B23074DFE2252c; // Aave Governance
