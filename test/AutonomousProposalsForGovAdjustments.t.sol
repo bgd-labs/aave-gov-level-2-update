@@ -172,51 +172,19 @@ contract AutonomousProposalsForGovAdjustmentsTest is Test {
     autonomous.createProposalsForGovAdjustments();
   }
 
-  function testVoteLvl2ProposalYes() public {
+  function testVoteOnGovAdjustmentsProposal() public {
     _createProposals();
-    _delegateVotingPower();
-    autonomousGovLvl2Proposal.voteOnLvl2GovAdjustmentsProposal(true);
 
+    _delegateVotingPower();
+    autonomousGovLvl2Proposal.voteOnGovAdjustmentsProposal();
 
     uint256 proposalsCount = GovHelpers.GOV.getProposalsCount();
+    uint256 currentPower = IGovernancePowerDelegationToken(GovHelpers.AAVE).getPowerCurrent(address(autonomousGovLvl2Proposal), IGovernancePowerDelegationToken.DelegationType.VOTING_POWER);
+    IAaveGov.ProposalWithoutVotes memory ecosystemProposal = GovHelpers.getProposalById(proposalsCount - 1);
+    assertEq(ecosystemProposal.forVotes, currentPower);
+
     IAaveGov.ProposalWithoutVotes memory lvl2Proposal = GovHelpers.getProposalById(proposalsCount - 2);
-    uint256 currentPower = IGovernancePowerDelegationToken(GovHelpers.AAVE).getPowerCurrent(address(autonomousGovLvl2Proposal), IGovernancePowerDelegationToken.DelegationType.VOTING_POWER);
     assertEq(lvl2Proposal.forVotes, currentPower);
-  }
-
-  function testVoteEcosystemReserveProposalYes() public {
-    _createProposals();
-    _delegateVotingPower();
-    autonomousGovLvl2Proposal.voteOnEcosystemReserveProposal(true);
-
-    uint256 proposalsCount = GovHelpers.GOV.getProposalsCount();
-    IAaveGov.ProposalWithoutVotes memory lvl2Proposal = GovHelpers.getProposalById(proposalsCount - 1);
-    uint256 currentPower = IGovernancePowerDelegationToken(GovHelpers.AAVE).getPowerCurrent(address(autonomousGovLvl2Proposal), IGovernancePowerDelegationToken.DelegationType.VOTING_POWER);
-    assertEq(lvl2Proposal.forVotes, currentPower);
-  }
-
-  function testVoteLvl2ProposalNo() public {
-    _createProposals();
-    _delegateVotingPower();
-    autonomousGovLvl2Proposal.voteOnLvl2GovAdjustmentsProposal(false);
-
-
-    uint256 proposalsCount = GovHelpers.GOV.getProposalsCount();
-    IAaveGov.ProposalWithoutVotes memory lvl2Proposal = GovHelpers.getProposalById(proposalsCount - 2);
-    uint256 currentPower = IGovernancePowerDelegationToken(GovHelpers.AAVE).getPowerCurrent(address(autonomousGovLvl2Proposal), IGovernancePowerDelegationToken.DelegationType.VOTING_POWER);
-    assertEq(lvl2Proposal.againstVotes, currentPower);
-  }
-
-  function testVoteEcosystemReserveProposalNo() public {
-    _createProposals();
-
-    _delegateVotingPower();
-    autonomousGovLvl2Proposal.voteOnEcosystemReserveProposal(false);
-
-    uint256 proposalsCount = GovHelpers.GOV.getProposalsCount();
-    IAaveGov.ProposalWithoutVotes memory lvl2Proposal = GovHelpers.getProposalById(proposalsCount - 1);
-    uint256 currentPower = IGovernancePowerDelegationToken(GovHelpers.AAVE).getPowerCurrent(address(autonomousGovLvl2Proposal), IGovernancePowerDelegationToken.DelegationType.VOTING_POWER);
-    assertEq(lvl2Proposal.againstVotes, currentPower);
   }
 
 

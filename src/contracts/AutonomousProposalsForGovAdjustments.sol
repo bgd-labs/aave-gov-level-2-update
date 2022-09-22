@@ -67,21 +67,14 @@ contract AutonomousProposalsForGovAdjustments {
     emit ProposalsCreated(msg.sender, newLongExecutorProposalId, ecosystemReserveProposalId, NEW_LONG_EXECUTOR_PAYLOAD, LVL2_IPFS_HASH, ECOSYSTEM_RESERVE_WITH_VOTING_PAYLOAD, RESERVE_ECOSYSTEM_IPFS_HASH);
   }
 
-  /**
-  * @dev method to vote on the new LongExecutor(lvl2) governance parameters adjustment proposal
-  * @param support indicates if the vote is in favor or against proposal
-  */
-  function voteOnLvl2GovAdjustmentsProposal(bool support) external {
-    AaveGovernanceV2.GOV.submitVote(newLongExecutorProposalId, support);
+
+  /// @dev method to vote on the governance parameters adjustment proposals, in case there is some
+  /// voting power delegation by error
+  function voteOnGovAdjustmentsProposal() external {
+    AaveGovernanceV2.GOV.submitVote(newLongExecutorProposalId, true);
+    AaveGovernanceV2.GOV.submitVote(ecosystemReserveProposalId, true);
   }
 
-  /**
-  * @dev method to vote on the new LongExecutor(lvl2) governance parameters adjustment proposal
-  * @param support indicates if the vote is in favor or against proposal
-  */
-  function voteOnEcosystemReserveProposal(bool support) external {
-    AaveGovernanceV2.GOV.submitVote(ecosystemReserveProposalId, support);
-  }
 
   function _createLvl2Proposal(address payload, bytes32 ipfsHash) internal returns (uint256) {
     address[] memory targets = new address[](1);
