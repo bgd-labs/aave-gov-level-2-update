@@ -12,7 +12,6 @@ import {IStreamable} from './AaveEcosystemReserveV2.sol';
  */
 contract ProposalPayloadAaveEcosystemReserveWithVoting {
   address public immutable AAVE_ECOSYSTEM_RESERVE_V2_IMPL;
-  uint256 public immutable PROPOSAL_ID;
   address public constant AAVE_GOVERNANCE_V2 =
     0xEC568fffba86c094cf06b22134B23074DFE2252c;
 
@@ -22,17 +21,18 @@ contract ProposalPayloadAaveEcosystemReserveWithVoting {
       0x25F2226B597E8F9514B3F68F00f494cF4f286491
     );
 
-  constructor(address aaveEcosystemReserveV2Impl, uint256 proposalId) {
+  constructor(address aaveEcosystemReserveV2Impl) {
     AAVE_ECOSYSTEM_RESERVE_V2_IMPL = aaveEcosystemReserveV2Impl;
-    PROPOSAL_ID = proposalId;
   }
 
-  function execute() external {
+  function execute(uint256 payloadId) external {
+    require(payloadId != 0, 'PAYLOAD_ID_BIGGER_THAN_0');
+
     AAVE_ECOSYSTEM_RESERVE_PROXY.upgradeToAndCall(
       AAVE_ECOSYSTEM_RESERVE_V2_IMPL,
       abi.encodeWithSelector(
         IStreamable(AAVE_ECOSYSTEM_RESERVE_V2_IMPL).initialize.selector,
-        PROPOSAL_ID,
+        payloadId,
         AAVE_GOVERNANCE_V2
       )
     );

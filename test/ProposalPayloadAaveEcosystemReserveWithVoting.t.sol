@@ -14,7 +14,7 @@ contract ProposalPayloadAaveEcosystemReserveWithVotingTest is Test {
         IERC20(0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9);
     address internal constant AAVE_WHALE =
         address(0x25F2226B597E8F9514B3F68F00f494cF4f286491);
-    
+
     uint256 public proposalId;
     uint256 public votingPower;
 
@@ -34,8 +34,7 @@ contract ProposalPayloadAaveEcosystemReserveWithVotingTest is Test {
         proposalId = _createMockProposal();
 
         proposalPayloadEcosystem = new ProposalPayloadAaveEcosystemReserveWithVoting(
-            address(aaveEcosystemReserveImpl),
-            proposalId
+            address(aaveEcosystemReserveImpl)
         );
 
         votingPower = AAVE_TOKEN.balanceOf(address(proposalPayloadEcosystem.AAVE_ECOSYSTEM_RESERVE_PROXY()));
@@ -51,9 +50,9 @@ contract ProposalPayloadAaveEcosystemReserveWithVotingTest is Test {
         uint256[] memory values = new uint256[](1);
         values[0] = 0;
         string[] memory signatures = new string[](1);
-        signatures[0] = "execute()";
+        signatures[0] = "execute(uint256)";
         bytes[] memory calldatas = new bytes[](1);
-        calldatas[0] = "";
+        calldatas[0] = abi.encode(proposalId);
         bool[] memory withDelegatecalls = new bool[](1);
         withDelegatecalls[0] = true;
 
@@ -84,7 +83,7 @@ contract ProposalPayloadAaveEcosystemReserveWithVotingTest is Test {
     function _validateEcosystemVoted(uint256 id) internal {
         IAaveGov.ProposalWithoutVotes memory proposalData = AaveGovHelpers
             ._getProposalById(id);
-        
+
         assertEq(proposalData.forVotes, votingPower);
     }
 
