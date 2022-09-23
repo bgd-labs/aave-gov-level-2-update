@@ -20,6 +20,8 @@ import {AaveGovernanceV2, IExecutorWithTimelock, IGovernanceStrategy} from 'aave
  *   - ECOSYSTEM_RESERVE_WITH_VOTING_PAYLOAD: src/contracts/ProposalPayloadAaveEcosystemReserveWithVoting.sol
  */
 contract AutonomousProposalsForGovAdjustments {
+  uint256 public constant GRACE_PERIOD = 5 days;
+
   address public immutable NEW_LONG_EXECUTOR_PAYLOAD;
   bytes32 public immutable LVL2_IPFS_HASH;
 
@@ -59,6 +61,7 @@ contract AutonomousProposalsForGovAdjustments {
   function createProposalsForGovAdjustments() external {
     require(newLongExecutorProposalId == 0 && ecosystemReserveProposalId == 0, 'PROPOSALS_ALREADY_CREATED');
     require(block.timestamp > CREATION_TIMESTAMP, 'CREATION_TIMESTAMP_NOT_YET_REACHED');
+    require(block.timestamp < CREATION_TIMESTAMP + GRACE_PERIOD, 'TIMESTAMP_BIGGER_THAN_GRACE_PERIOD');
 
     newLongExecutorProposalId = _createLvl2Proposal(NEW_LONG_EXECUTOR_PAYLOAD, LVL2_IPFS_HASH);
 
@@ -71,6 +74,7 @@ contract AutonomousProposalsForGovAdjustments {
   /// @dev method to vote on the governance parameters adjustment proposals, in case there is some
   /// voting power delegation by error
   function voteOnGovAdjustmentsProposal() external {
+    require(newLongExecutorProposalId != 0 && ecosystemReserveProposalId != 0, 'PROPOSALS_NOT_CREATED');
     AaveGovernanceV2.GOV.submitVote(newLongExecutorProposalId, true);
     AaveGovernanceV2.GOV.submitVote(ecosystemReserveProposalId, true);
   }

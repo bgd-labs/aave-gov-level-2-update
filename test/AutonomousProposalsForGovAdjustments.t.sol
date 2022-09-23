@@ -15,6 +15,8 @@ contract AutonomousProposalsForGovAdjustmentsTest is Test {
   IERC20 constant AAVE_TOKEN =
     IERC20(0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9);
 
+  uint256 public constant PROPOSAL_GRACE_PERIOD = 5 days;
+
   bytes32 public constant LVL2_IPFS_HASH = keccak256('lvl2 ifps hash');
   bytes32 public constant RESERVE_ECOSYSTEM_IPFS_HASH = keccak256('ecosystem ifps hash');
 
@@ -172,6 +174,16 @@ contract AutonomousProposalsForGovAdjustmentsTest is Test {
     autonomous.createProposalsForGovAdjustments();
   }
 
+
+  function testCreateTimestampBiggerGracePeriod() public {
+    uint256 time = block.timestamp + 10;
+    AutonomousProposalsForGovAdjustments autonomous = new AutonomousProposalsForGovAdjustments(address(lvl2Payload), address(ecosystemPayload), LVL2_IPFS_HASH, RESERVE_ECOSYSTEM_IPFS_HASH, time);
+
+    skip(PROPOSAL_GRACE_PERIOD + 12);
+    vm.expectRevert((bytes('TIMESTAMP_BIGGER_THAN_GRACE_PERIOD')));
+    autonomous.createProposalsForGovAdjustments();
+  }
+
   function testVoteOnGovAdjustmentsProposal() public {
     _createProposals();
 
@@ -204,6 +216,11 @@ contract AutonomousProposalsForGovAdjustmentsTest is Test {
     IAaveGov.ProposalWithoutVotes memory lvl2Proposal = GovHelpers.getProposalById(proposalsCount - 2);
     uint256 votingPower = AAVE_TOKEN.balanceOf(address(ecosystemPayload.AAVE_ECOSYSTEM_RESERVE_PROXY()));
     assertEq(lvl2Proposal.forVotes, votingPower);
+  }
+
+  function testVotingWhenProposalsNotCreated() public {
+    vm.expectRevert((bytes('PROPOSALS_NOT_CREATED')));
+    autonomousGovLvl2Proposal.voteOnGovAdjustmentsProposal();
   }
 
   function _createProposals() internal {
