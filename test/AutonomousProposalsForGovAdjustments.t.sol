@@ -235,5 +235,4 @@ contract AutonomousProposalsForGovAdjustmentsTest is Test {
     IGovernancePowerDelegationToken(GovHelpers.AAVE).delegateByType(address(autonomousGovLvl2Proposal), IGovernancePowerDelegationToken.DelegationType.VOTING_POWER);
     vm.roll(block.number + 10);
   }
-
 }

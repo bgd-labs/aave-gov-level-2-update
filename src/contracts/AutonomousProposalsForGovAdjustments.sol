@@ -20,6 +20,8 @@ import {AaveGovernanceV2, IExecutorWithTimelock, IGovernanceStrategy} from 'aave
  *   - ECOSYSTEM_RESERVE_WITH_VOTING_PAYLOAD: src/contracts/ProposalPayloadAaveEcosystemReserveWithVoting.sol
  */
 contract AutonomousProposalsForGovAdjustments {
+  using SafeERC20 for IERC20;
+
   uint256 public constant GRACE_PERIOD = 5 days;
 
   address public immutable NEW_LONG_EXECUTOR_PAYLOAD;
@@ -79,6 +81,14 @@ contract AutonomousProposalsForGovAdjustments {
     AaveGovernanceV2.GOV.submitVote(ecosystemReserveProposalId, true);
   }
 
+  function emergencyTokenTransfer(
+    address erc20Token,
+    address to,
+    uint256 amount
+  ) external {
+    require(msg.sender == AaveGovernanceV2.SHORT_EXECUTOR, 'CALLER_NOT_EXECUTOR');
+    IERC20(erc20Token).safeTransfer(to, amount);
+  }
 
   function _createLvl2Proposal(address payload, bytes32 ipfsHash) internal returns (uint256) {
     address[] memory targets = new address[](1);
