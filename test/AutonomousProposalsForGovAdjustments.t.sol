@@ -223,6 +223,33 @@ contract AutonomousProposalsForGovAdjustmentsTest is Test {
     autonomousGovLvl2Proposal.voteOnGovAdjustmentsProposal();
   }
 
+  function testEmergencyTokenTransfer() public {
+    hoax(GovHelpers.AAVE_WHALE);
+    AAVE_TOKEN.transfer(address(autonomousGovLvl2Proposal), 3 ether);
+
+    assertEq(AAVE_TOKEN.balanceOf(address(autonomousGovLvl2Proposal)), 3 ether);
+
+    address recipient = address(1230123519);
+
+    hoax(GovHelpers.SHORT_EXECUTOR);
+    autonomousGovLvl2Proposal.emergencyTokenTransfer(address(AAVE_TOKEN), recipient, 3 ether);
+
+    assertEq(AAVE_TOKEN.balanceOf(address(autonomousGovLvl2Proposal)), 0);
+    assertEq(AAVE_TOKEN.balanceOf(address(recipient)), 3 ether);
+  }
+
+  function testEmergencyTokenTransferWhenNotShortExecutor() public {
+    hoax(GovHelpers.AAVE_WHALE);
+    AAVE_TOKEN.transfer(address(autonomousGovLvl2Proposal), 3 ether);
+
+    assertEq(AAVE_TOKEN.balanceOf(address(autonomousGovLvl2Proposal)), 3 ether);
+
+    address recipient = address(1230123519);
+
+    vm.expectRevert((bytes('CALLER_NOT_EXECUTOR')));
+    autonomousGovLvl2Proposal.emergencyTokenTransfer(address(AAVE_TOKEN), recipient, 3 ether);
+  }
+
   function _createProposals() internal {
     hoax(GovHelpers.AAVE_WHALE);
     IGovernancePowerDelegationToken(GovHelpers.AAVE).delegateByType(address(autonomousGovLvl2Proposal), IGovernancePowerDelegationToken.DelegationType.PROPOSITION_POWER);
@@ -235,5 +262,4 @@ contract AutonomousProposalsForGovAdjustmentsTest is Test {
     IGovernancePowerDelegationToken(GovHelpers.AAVE).delegateByType(address(autonomousGovLvl2Proposal), IGovernancePowerDelegationToken.DelegationType.VOTING_POWER);
     vm.roll(block.number + 10);
   }
-
 }
